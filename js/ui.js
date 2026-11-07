@@ -4,19 +4,6 @@
 
 import { PLATFORMS } from './api.js';
 
-// Szablon placeholder SVG dla gier bez okładki
-const FALLBACK_SVG = `
-  <div class="card-placeholder-fallback">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-      <rect x="2" y="6" width="20" height="12" rx="3" />
-      <path d="M6 12h4m-2-2v4" />
-      <circle cx="15" cy="11" r="1" fill="currentColor" />
-      <circle cx="18" cy="13" r="1" fill="currentColor" />
-    </svg>
-    <span>Retro ROM</span>
-  </div>
-`;
-
 /**
  * Formatowanie liczby pobrań (np. 12500 -> 12.5k)
  */
@@ -50,7 +37,7 @@ export function renderPlatforms(container, activeId, onSelect) {
 }
 
 /**
- * Renderowanie szkieletu ładowania (Skeleton Loader)
+ * Renderowanie szkieletu ładowania (Skeleton Loader 3:4)
  */
 export function renderSkeletons(container, count = 12) {
   if (!container) return;
@@ -72,7 +59,7 @@ export function renderSkeletons(container, count = 12) {
 }
 
 /**
- * Renderowanie siatki gier
+ * Renderowanie siatki gier (Większe zdjęcia, proporcje Box-art 3:4, bez ikony i napisu retro rom)
  */
 export function renderGames(container, games, onGameClick) {
   if (!container) return;
@@ -85,38 +72,80 @@ export function renderGames(container, games, onGameClick) {
     card.setAttribute('role', 'button');
     card.setAttribute('aria-label', `${game.title} - Wybierz aby pobrać`);
 
-    // Obrazek lub fallback
-    const imgHtml = `
-      <div class="card-media-wrapper">
-        <img 
-          src="${game.thumbnail}" 
-          alt="${game.title}" 
-          class="card-img" 
-          loading="lazy"
-          onerror="this.onerror=null; this.parentElement.innerHTML = \`${FALLBACK_SVG}\`;"
-        />
-        <div class="card-badge-downloads" title="Liczba pobrań z Internet Archive">
-          ⬇ ${formatDownloads(game.downloads)}
-        </div>
-      </div>
-    `;
+    // Kontener okładki z dyskretnym znakiem wodnym platformy
+    const mediaWrapper = document.createElement('div');
+    mediaWrapper.className = 'card-media-wrapper';
 
-    const bodyHtml = `
-      <div class="card-body">
-        <h3 class="card-title" title="${game.title}">${game.title}</h3>
-        <div class="card-meta-row">
-          <span>${game.year ? '📅 ' + game.year : 'Retro'}</span>
-          <span>${game.collections?.[0] ? '📦 ' + game.collections[0].substring(0, 15) : ''}</span>
-        </div>
-        <button type="button" class="card-btn-action">
-          <span>💾 Pobierz ROM</span>
-        </button>
-      </div>
-    `;
+    // Faint watermark in background
+    const watermark = document.createElement('span');
+    watermark.className = 'card-watermark';
+    watermark.textContent = game.platformName || (game.isCatalog ? 'GAME' : 'ROM');
+    mediaWrapper.appendChild(watermark);
 
-    card.innerHTML = imgHtml + bodyHtml;
+    // Zdjęcie / Okładka (bez żadnych inline skryptów z błędnymi cudzysłowami)
+    if (game.thumbnail) {
+      const img = document.createElement('img');
+      img.src = game.thumbnail;
+      img.alt = game.title;
+      img.className = 'card-img';
+      img.loading = 'lazy';
+      img.addEventListener('error', () => {
+        img.style.display = 'none';
+      });
+      mediaWrapper.appendChild(img);
+    }
 
-    // Obsługa kliknięcia i klawisza Enter / Spacji
+    // Odznaka pobrań lub bazy gier
+    if (game.downloads) {
+      const badge = document.createElement('div');
+      badge.className = 'card-badge-downloads';
+      badge.title = 'Liczba pobrań z Internet Archive';
+      badge.textContent = `⬇ ${formatDownloads(game.downloads)}`;
+      mediaWrapper.appendChild(badge);
+    } else if (game.isCatalog) {
+      const tagBadge = document.createElement('div');
+      tagBadge.className = 'card-badge-tag';
+      tagBadge.textContent = game.platformName || 'Katalog';
+      mediaWrapper.appendChild(tagBadge);
+    }
+
+    // Dolna sekcja karty
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'card-title';
+    titleEl.title = game.title;
+    titleEl.textContent = game.title;
+
+    const metaRow = document.createElement('div');
+    metaRow.className = 'card-meta-row';
+
+    const yearSpan = document.createElement('span');
+    yearSpan.textContent = game.year ? `📅 ${game.year}` : (game.platformName || 'Retro');
+
+    const subSpan = document.createElement('span');
+    if (game.publisher) {
+      subSpan.textContent = `🏢 ${game.publisher.substring(0, 15)}`;
+    } else if (game.collections?.[0]) {
+      subSpan.textContent = `📦 ${game.collections[0].substring(0, 15)}`;
+    }
+
+    metaRow.appendChild(yearSpan);
+    metaRow.appendChild(subSpan);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'card-btn-action';
+    btn.innerHTML = `<span>💾 Pobierz ROM</span>`;
+
+    body.appendChild(titleEl);
+    body.appendChild(metaRow);
+    body.appendChild(btn);
+
+    card.appendChild(mediaWrapper);
+    card.appendChild(body);
+
     const triggerSelect = () => onGameClick(game);
     card.addEventListener('click', triggerSelect);
     card.addEventListener('keydown', (e) => {
@@ -141,7 +170,7 @@ export function renderEmptyState(container, query, platformName) {
       <h3 class="state-title">Brak wyników</h3>
       <p class="state-desc">
         Nie znaleziono gier dla frazy <strong>"${query || 'wszystkie'}"</strong> w kategorii <strong>${platformName || 'wybranej'}</strong>.<br/>
-        Spróbuj zmienić słowo kluczowe, odznacz filtr zaufanych kolekcji lub wybierz inną platformę.
+        Spróbuj zmienić słowo kluczowe, przełącz tryb źródła lub wybierz inną platformę.
       </p>
     </div>
   `;
@@ -156,7 +185,7 @@ export function renderErrorState(container, message, onRetry) {
     <div class="state-message-box">
       <div class="state-icon">⚠️</div>
       <h3 class="state-title">Wystąpił problem z połączeniem</h3>
-      <p class="state-desc">${message || 'Nie udało się połączyć z API Internet Archive.'}</p>
+      <p class="state-desc">${message || 'Nie udało się pobrać danych.'}</p>
       <button type="button" class="btn-primary" id="btn-retry-action">
         🔄 Spróbuj ponownie
       </button>
@@ -184,7 +213,7 @@ export function renderPagination(container, { page, totalPages, total, onPageCha
       <button type="button" class="btn-page" id="btn-prev-page" ${page <= 1 ? 'disabled' : ''}>
         ⬅ Poprzednia
       </button>
-      <span class="page-indicator">Strona <strong>${page}</strong> z <strong>${totalPages}</strong> (${total} pozycji)</span>
+      <span class="page-indicator">Strona <strong>${page}</strong> z <strong>${totalPages}</strong> (${total.toLocaleString()} pozycji)</span>
       <button type="button" class="btn-page" id="btn-next-page" ${page >= totalPages ? 'disabled' : ''}>
         Następna ➡
       </button>
@@ -213,10 +242,10 @@ export function showModalLoading(modalBackdrop, game) {
   if (modalBody) {
     modalBody.innerHTML = `
       <div class="modal-game-hero">
-        <img src="${game.thumbnail}" alt="" class="modal-game-cover" onerror="this.onerror=null; this.src='assets/icons/icon.svg';" />
+        ${game.thumbnail ? `<img src="${game.thumbnail}" alt="" class="modal-game-cover" onerror="this.style.display='none';" />` : ''}
         <div class="modal-game-details">
           <h4 class="modal-game-title">${game.title}</h4>
-          <span class="modal-game-id">ID: ${game.identifier}</span>
+          <span class="modal-game-id">${game.year ? 'Rok: ' + game.year : ''} ${game.publisher ? '• Wydawca: ' + game.publisher : ''}</span>
         </div>
       </div>
       <div class="files-list-container">
@@ -240,14 +269,14 @@ export function populateFilesModal(modalBackdrop, game, filesData, onCopyToast) 
   const modalBody = modalBackdrop.querySelector('#modal-game-body');
   if (!modalBody) return;
 
-  const { romFiles, otherFiles, identifier } = filesData;
+  const { romFiles = [], otherFiles = [], identifier, searchUrl } = filesData;
 
   let contentHtml = `
     <div class="modal-game-hero">
-      <img src="${game.thumbnail}" alt="" class="modal-game-cover" onerror="this.onerror=null; this.src='assets/icons/icon.svg';" />
+      ${game.thumbnail ? `<img src="${game.thumbnail}" alt="" class="modal-game-cover" onerror="this.style.display='none';" />` : ''}
       <div class="modal-game-details">
         <h4 class="modal-game-title">${game.title}</h4>
-        <span class="modal-game-id">Archiwum: ${identifier}</span>
+        <span class="modal-game-id">${identifier ? 'Archiwum: ' + identifier : (game.platformName || 'Gra retro')}</span>
       </div>
     </div>
   `;
@@ -255,9 +284,10 @@ export function populateFilesModal(modalBackdrop, game, filesData, onCopyToast) 
   if (romFiles.length === 0 && otherFiles.length === 0) {
     contentHtml += `
       <div class="state-message-box" style="padding: 24px;">
-        <p>W tym archiwum nie znaleziono bezpośrednich plików ROM.</p>
-        <a href="https://archive.org/details/${encodeURIComponent(identifier)}" target="_blank" rel="noopener" class="btn-primary" style="margin-top: 10px;">
-          Otwórz na Archive.org
+        <p>Nie znaleziono bezpośredniego pliku ROM w pojedynczym archiwum dla tego tytułu.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Gra może znajdować się w zbiorze wielopłytowym lub pełnym secie danej konsoli.</p>
+        <a href="${searchUrl || `https://archive.org/search.php?query=${encodeURIComponent(game.title)}`}" target="_blank" rel="noopener" class="btn-primary" style="margin-top: 10px;">
+          🌐 Wyszukaj w Internet Archive
         </a>
       </div>
     `;
@@ -268,7 +298,7 @@ export function populateFilesModal(modalBackdrop, game, filesData, onCopyToast) 
         <h5 class="files-section-title">Dostępne pliki ROM (${romFiles.length})</h5>
     `;
 
-    romFiles.forEach((file, index) => {
+    romFiles.forEach((file) => {
       contentHtml += `
         <div class="file-row">
           <div class="file-info">

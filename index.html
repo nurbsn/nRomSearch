@@ -42,6 +42,19 @@
   <!-- Główna zawartość -->
   <main class="main-content">
     <section class="hero-search-section">
+
+      <!-- Wybór trybu źródła: Baza gier vs Internet Archive -->
+      <div class="source-mode-bar">
+        <div class="source-mode-toggle" role="tablist" aria-label="Wybór źródła danych">
+          <button type="button" id="mode-catalog" class="btn-mode active" role="tab" aria-selected="true" title="Katalog tysięcy autentycznych tytułów gier z repozytorium">
+            📚 Baza gier (Katalog)
+          </button>
+          <button type="button" id="mode-archive" class="btn-mode" role="tab" aria-selected="false" title="Bezpośrednie przeszukiwanie archiwów i kolekcji Internet Archive">
+            🌐 Internet Archive
+          </button>
+        </div>
+      </div>
+
       <!-- Pole wyszukiwania -->
       <div class="search-bar-wrapper">
         <span class="search-icon-left" aria-hidden="true">🔍</span>
@@ -49,7 +62,7 @@
           type="search" 
           id="search-input" 
           class="search-input" 
-          placeholder="Wyszukaj grę retro (np. Mario, Pokemon, Zelda, Sonic, Crash)..." 
+          placeholder="Wpisz tytuł gry (np. Mario, Zelda, Crash, Tekken, Sonic, Pokemon)..." 
           autocomplete="off"
           spellcheck="false"
           aria-label="Wyszukaj grę retro"
@@ -68,7 +81,7 @@
 
       <!-- Pasek opcji i statystyk -->
       <div class="controls-bar">
-        <label class="filter-toggle-label">
+        <label class="filter-toggle-label" id="trusted-toggle-wrap">
           <input type="checkbox" id="toggle-trusted" />
           <span>Tylko zaufane kolekcje (No-Intro / Redump / TOSEC)</span>
         </label>
@@ -78,7 +91,7 @@
       </div>
     </section>
 
-    <!-- Siatka kafelków z grami -->
+    <!-- Siatka kafelków z grami (Większe zdjęcia, box-art) -->
     <section id="games-grid" class="games-grid" aria-live="polite">
       <!-- Wypełniane dynamicznie przez ui.js -->
     </section>
@@ -155,7 +168,7 @@
   <!-- Stopka -->
   <footer class="app-footer">
     <div class="footer-content">
-      <span>nRomSearch &bull; Wyszukiwarka otwartych zasobów archiwalnych Internet Archive</span>
+      <span>nRomSearch &bull; Baza gier retro &amp; Internet Archive</span>
       <span>Kompatybilne z PWA &bull; GitHub Pages</span>
     </div>
   </footer>

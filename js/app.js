@@ -2,7 +2,7 @@
  * nRomSearch - Główny kontroler aplikacji (App Orchestrator)
  */
 
-import { PLATFORMS, searchGames, fetchGameFiles } from './api.js';
+import { PLATFORMS, searchGames, searchCatalog, findRomForCatalogGame, fetchGameFiles } from './api.js';
 import {
   renderPlatforms,
   renderSkeletons,
@@ -18,8 +18,9 @@ import {
 
 // Stan aplikacji
 const state = {
+  sourceMode: 'catalog', // 'catalog' (baza gier z repozytorium) lub 'archive' (Internet Archive)
   query: '',
-  platformId: 'all',
+  platformId: 'snes', // Domyślnie SNES w katalogu
   trustedOnly: false,
   page: 1,
   rows: 30,
@@ -36,9 +37,12 @@ let searchDebounceTimer = null;
 
 // Elementy DOM
 const elements = {
+  btnModeCatalog: document.getElementById('mode-catalog'),
+  btnModeArchive: document.getElementById('mode-archive'),
   searchInput: document.getElementById('search-input'),
   searchClearBtn: document.getElementById('search-clear-btn'),
   platformList: document.getElementById('platform-list'),
+  trustedToggleWrap: document.getElementById('trusted-toggle-wrap'),
   trustedToggle: document.getElementById('toggle-trusted'),
   resultsStats: document.getElementById('results-stats'),
   gamesGrid: document.getElementById('games-grid'),
@@ -74,15 +78,19 @@ function registerServiceWorker() {
 }
 
 /**
- * Synchronizacja stanu z parametrami URL (?q=...&platform=...)
+ * Synchronizacja stanu z parametrami URL (?q=...&platform=...&mode=...)
  */
 function syncStateFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
+  const mode = urlParams.get('mode');
   const q = urlParams.get('q');
   const platform = urlParams.get('platform');
   const page = parseInt(urlParams.get('page') || '1', 10);
   const trusted = urlParams.get('trusted') === '1';
 
+  if (mode === 'archive' || mode === 'catalog') {
+    state.sourceMode = mode;
+  }
   if (q !== null) {
     state.query = q;
     if (elements.searchInput) elements.searchInput.value = q;
@@ -98,17 +106,36 @@ function syncStateFromUrl() {
     elements.trustedToggle.checked = trusted;
   }
   updateClearButtonVisibility();
+  updateModeButtonsUI();
 }
 
 /**
- * Zapisuje aktualny stan do parametrów URL (bez przeładowywania strony)
+ * Aktualizuje wygląd przełącznika trybów (Katalog vs Archiwum)
+ */
+function updateModeButtonsUI() {
+  const isCatalog = state.sourceMode === 'catalog';
+  elements.btnModeCatalog?.classList.toggle('active', isCatalog);
+  elements.btnModeCatalog?.setAttribute('aria-selected', String(isCatalog));
+
+  elements.btnModeArchive?.classList.toggle('active', !isCatalog);
+  elements.btnModeArchive?.setAttribute('aria-selected', String(!isCatalog));
+
+  // Pokaż filtr zaufanych kolekcji tylko w trybie Archive
+  if (elements.trustedToggleWrap) {
+    elements.trustedToggleWrap.style.display = isCatalog ? 'none' : 'inline-flex';
+  }
+}
+
+/**
+ * Zapisuje aktualny stan do parametrów URL
  */
 function updateUrlParams() {
   const params = new URLSearchParams();
+  if (state.sourceMode !== 'catalog') params.set('mode', state.sourceMode);
   if (state.query) params.set('q', state.query);
   if (state.platformId && state.platformId !== 'all') params.set('platform', state.platformId);
   if (state.page > 1) params.set('page', String(state.page));
-  if (state.trustedOnly) params.set('trusted', '1');
+  if (state.trustedOnly && state.sourceMode === 'archive') params.set('trusted', '1');
 
   const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
   window.history.replaceState(null, '', newUrl);
@@ -131,10 +158,9 @@ function getActivePlatformName() {
 }
 
 /**
- * Wykonanie zapytania wyszukiwania
+ * Wykonanie zapytania wyszukiwania (w trybie katalogu lub archive.org)
  */
 async function performSearch() {
-  // Anuluj poprzednie trwające zapytanie
   if (currentAbortController) {
     currentAbortController.abort();
   }
@@ -146,28 +172,42 @@ async function performSearch() {
   // Renderuj szkielety ładowania
   renderSkeletons(elements.gamesGrid, 12);
   if (elements.resultsStats) {
-    elements.resultsStats.innerHTML = `Wyszukiwanie w archiwum: <strong>${getActivePlatformName()}</strong>...`;
+    const modeName = state.sourceMode === 'catalog' ? 'Katalogu gier' : 'Internet Archive';
+    elements.resultsStats.innerHTML = `Pobieranie danych z <strong>${modeName}</strong>: <strong>${getActivePlatformName()}</strong>...`;
   }
   if (elements.paginationContainer) {
     elements.paginationContainer.innerHTML = '';
   }
 
   try {
-    const result = await searchGames({
-      query: state.query,
-      platformId: state.platformId,
-      trustedOnly: state.trustedOnly,
-      page: state.page,
-      rows: state.rows,
-      signal: currentAbortController.signal
-    });
+    let result;
+
+    if (state.sourceMode === 'catalog') {
+      result = await searchCatalog({
+        query: state.query,
+        platformId: state.platformId,
+        page: state.page,
+        rows: state.rows,
+        signal: currentAbortController.signal
+      });
+    } else {
+      result = await searchGames({
+        query: state.query,
+        platformId: state.platformId,
+        trustedOnly: state.trustedOnly,
+        page: state.page,
+        rows: state.rows,
+        signal: currentAbortController.signal
+      });
+    }
 
     state.isLoading = false;
     state.totalResults = result.total;
     state.totalPages = result.totalPages;
 
     if (elements.resultsStats) {
-      elements.resultsStats.innerHTML = `Znaleziono: <strong>${result.total.toLocaleString()}</strong> pozycji w kategorii <strong>${getActivePlatformName()}</strong>`;
+      const modeLabel = state.sourceMode === 'catalog' ? '📚 Baza gier' : '🌐 Internet Archive';
+      elements.resultsStats.innerHTML = `${modeLabel} • Znaleziono: <strong>${result.total.toLocaleString()}</strong> gier w <strong>${getActivePlatformName()}</strong>`;
     }
 
     if (result.games.length === 0) {
@@ -186,9 +226,7 @@ async function performSearch() {
       });
     }
   } catch (err) {
-    if (err.name === 'AbortError') {
-      return; // Zignoruj zapytanie przerwane nowszym zapytaniem
-    }
+    if (err.name === 'AbortError') return;
     state.isLoading = false;
     console.error('[Search Error]', err);
     renderErrorState(elements.gamesGrid, err.message, () => {
@@ -208,7 +246,16 @@ async function handleGameSelected(game) {
   showModalLoading(elements.gameModal, game);
 
   try {
-    const filesData = await fetchGameFiles(game.identifier);
+    let filesData;
+
+    if (game.isCatalog) {
+      // Dla gry z katalogu wyszukaj odpowiadający plik ROM w Internet Archive
+      filesData = await findRomForCatalogGame(game);
+    } else {
+      // Dla pozycji z Internet Archive pobierz pliki bezpośrednio z archiwum
+      filesData = await fetchGameFiles(game.identifier);
+    }
+
     state.activeFiles = filesData;
     populateFilesModal(elements.gameModal, game, filesData, (msg) => {
       showToast(elements.toastContainer, msg);
@@ -219,10 +266,10 @@ async function handleGameSelected(game) {
     if (modalBody) {
       modalBody.innerHTML = `
         <div class="state-message-box" style="padding: 20px;">
-          <h4 style="color: var(--accent-rose);">Nie udało się pobrać spisu plików</h4>
+          <h4 style="color: var(--accent-rose);">Nie udało się pobrać pliku ROM</h4>
           <p style="font-size: 0.88rem; color: var(--text-muted);">${err.message}</p>
-          <a href="https://archive.org/details/${encodeURIComponent(game.identifier)}" target="_blank" rel="noopener" class="btn-primary" style="margin-top: 12px;">
-            Przejdź na Archive.org
+          <a href="https://archive.org/search.php?query=${encodeURIComponent(game.title)}" target="_blank" rel="noopener" class="btn-primary" style="margin-top: 12px;">
+            Szukaj ręcznie na Archive.org
           </a>
         </div>
       `;
@@ -234,7 +281,26 @@ async function handleGameSelected(game) {
  * Podpięcie zdarzeń interfejsu użytkownika
  */
 function bindEvents() {
-  // Zmiana tekstu wyszukiwania z debounce 350ms
+  // Przełączanie trybu źródła: Katalog vs Archive
+  elements.btnModeCatalog?.addEventListener('click', () => {
+    if (state.sourceMode !== 'catalog') {
+      state.sourceMode = 'catalog';
+      state.page = 1;
+      updateModeButtonsUI();
+      performSearch();
+    }
+  });
+
+  elements.btnModeArchive?.addEventListener('click', () => {
+    if (state.sourceMode !== 'archive') {
+      state.sourceMode = 'archive';
+      state.page = 1;
+      updateModeButtonsUI();
+      performSearch();
+    }
+  });
+
+  // Zmiana tekstu wyszukiwania
   if (elements.searchInput) {
     elements.searchInput.addEventListener('input', (e) => {
       state.query = e.target.value;
@@ -242,9 +308,11 @@ function bindEvents() {
       updateClearButtonVisibility();
 
       clearTimeout(searchDebounceTimer);
+      // W trybie katalogu szybszy debounce (200ms)
+      const debounceTime = state.sourceMode === 'catalog' ? 200 : 350;
       searchDebounceTimer = setTimeout(() => {
         performSearch();
-      }, 350);
+      }, debounceTime);
     });
   }
 
@@ -271,7 +339,7 @@ function bindEvents() {
     });
   }
 
-  // Zamykanie modali przyciskiem
+  // Zamykanie modali
   elements.gameModalClose?.addEventListener('click', () => closeModal(elements.gameModal));
   elements.daijishoClose?.addEventListener('click', () => closeModal(elements.daijishoModal));
 
@@ -313,13 +381,9 @@ function bindEvents() {
  * Inicjalizacja aplikacji
  */
 function init() {
-  // Rejestracja PWA
   registerServiceWorker();
-
-  // Odczyt parametrów URL
   syncStateFromUrl();
 
-  // Obsługa wyboru platformy
   function handlePlatformSelect(newPlatformId) {
     state.platformId = newPlatformId;
     state.page = 1;
@@ -327,17 +391,11 @@ function init() {
     performSearch();
   }
 
-  // Wyrenderowanie pigułek platform
   renderPlatforms(elements.platformList, state.platformId, handlePlatformSelect);
-
-  // Podpięcie listenerów
   bindEvents();
-
-  // Pierwsze wyszukiwanie
   performSearch();
 }
 
-// Start po załadowaniu DOM
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {

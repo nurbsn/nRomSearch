@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nromsearch-shell-v1';
+const CACHE_NAME = 'nromsearch-shell-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -34,9 +34,27 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 1. Direct downloads and API queries: Always fetch fresh from network
+  // 1. Zewnętrzne boxarty (Libretro) i katalogi gier z GitHuba
+  if (url.hostname === 'raw.githubusercontent.com') {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) return cached;
+        return fetch(event.request).then((response) => {
+          if (response && response.status === 200) {
+            const resClone = response.clone();
+            caches.open('nromsearch-catalog-v1').then((cache) => {
+              cache.put(event.request, resClone);
+            });
+          }
+          return response;
+        }).catch(() => cached);
+      })
+    );
+    return;
+  }
+
+  // 2. Internet Archive (miniaturki vs bezpośrednie API/download)
   if (url.hostname.includes('archive.org')) {
-    // For thumbnails, allow caching in a separate media cache
     if (url.pathname.startsWith('/services/img/')) {
       event.respondWith(
         caches.match(event.request).then((cached) => {
@@ -55,19 +73,18 @@ self.addEventListener('fetch', (event) => {
       return;
     }
 
-    // Advanced search & metadata API & downloads -> network direct
+    // Advanced search & metadata API & pliki ROM -> świeże z sieci
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // 2. App Shell: Cache-first with network fallback
+  // 3. App Shell: Cache-first z fallbackiem do sieci
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request).then((networkResponse) => {
         return networkResponse;
       });
     }).catch(() => {
-      // Offline fallback for HTML navigation
       if (event.request.headers.get('accept')?.includes('text/html')) {
         return caches.match('./index.html');
       }

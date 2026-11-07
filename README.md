@@ -1,6 +1,6 @@
 # nRomSearch 🎮
 
-> Lekka, bezserwerowa wyszukiwarka gier retro (Single Page Application / Progressive Web App) zoptymalizowana pod urządzenia z systemem Android, konsole przenośne oraz launcher **Daijishō**.
+> Lekka, bezserwerowa wyszukiwarka gier retro (Single Page Application / Progressive Web App) zintegrowana z bazą tytułów z repozytorium GitHub, okładkami Libretro Boxarts oraz archiwami Internet Archive. Zoptymalizowana pod urządzenia z systemem Android, konsole przenośne oraz launcher **Daijishō**.
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live%20Demo-brightgreen)](https://nurbsn.github.io/nRomSearch/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -9,14 +9,16 @@
 
 ---
 
-## 🌟 Główne zalety
+## 🌟 Główne funkcje i nowości
 
-* **100% Client-Side:** Działa bezpośrednio w przeglądarce bez konieczności utrzymywania dedykowanego serwera backendowego.
-* **Integracja z Internet Archive:** Asynchroniczne przeszukiwanie publicznych zbiorów i kolekcji (*No-Intro*, *Redump*, *TOSEC*) za pomocą oficjalnego API Internet Archive.
+* **📚 Baza gier z repozytorium:** Zintegrowana baza tysięcy oficjalnych gier retro pobierana bezpośrednio z repozytorium GitHub dla każdej konsoli (tytuł, rok, twórca, wydawca). Błyskawiczne filtrowanie i wyszukiwanie lokalne w czasie rzeczywistym.
+* **🖼️ Okładki Box-art (3:4):** Duże, czytelne okładki gier pobierane w wysokiej rozdzielczości z repozytorium `libretro-thumbnails`. Estetyczny minimalistyczny wygląd kart bez zbędnych placeholderów.
+* **⚡ 1-klikowe wyszukiwanie i pobieranie ROM:** Kliknięcie gry z katalogu automatycznie odpytuje Internet Archive o bezpośrednie pliki ROM dla tego konkretnego tytułu, wyświetlając listę plików, formaty oraz dokładne rozmiary (MB/GB).
+* **🌐 Tryb wyszukiwarki Internet Archive:** Możliwość swobodnego przełączenia na bezpośrednie przeszukiwanie wszystkich zasobów i kolekcji Archive.org (*No-Intro*, *Redump*, *TOSEC*).
+* **100% Client-Side:** Aplikacja działa bezpośrednio w przeglądarce i nie wymaga zewnętrznego backendu.
 * **Optymalizacja pod ekrany dotykowe i gamepad:** Wygodna nawigacja dotykowa, responsywna siatka z kafelkami oraz obsługa kontrolerów fizycznych (D-pad / klawisze strzałek / Enter / Escape).
-* **Bezpośrednie pobieranie i podgląd rozmiaru:** Wyświetlanie dokładnego rozmiaru pliku (MB/GB) oraz bezpośredni download z poziomu modala bez zbędnych przekierowań.
 * **Gotowe do instalacji jako PWA:** Obsługa trybu pełnoekranowego (*standalone*) i buforowanie powłoki aplikacji (*Service Worker*).
-* **Współpraca z launcherem Daijishō:** Obsługa parametrów zapytania URL (`?platform={platform}&q={title}`) umożliwia bezpośrednie wyszukiwanie brakujących gier z poziomu Daijishō.
+* **Współpraca z launcherem Daijishō:** Obsługa parametrów zapytania URL (`?platform={platform}&q={title}`) umożliwia bezpośrednie wyszukiwanie brakujących gier z poziomu launchera Daijishō.
 
 ---
 
@@ -48,13 +50,13 @@ Aplikację można zintegrować z Daijishō na urządzeniach przenośnych (np. Re
 
 ```text
 nRomSearch/
-├── index.html              # Główny interfejs SPA
+├── index.html              # Główny interfejs SPA z przełącznikiem trybów
 ├── manifest.json           # Konfiguracja Progressive Web App
-├── sw.js                   # Service Worker (offline App Shell + media cache)
+├── sw.js                   # Service Worker (offline App Shell + media/catalog cache)
 ├── styles/
-│   └── main.css            # Dark Mode, siatka kafelków, skeleton loadery
+│   └── main.css            # Dark Mode, siatka kafelków box-art (3:4), skeleton loadery
 ├── js/
-│   ├── api.js              # Klient Internet Archive API & rozpoznawanie ROM-ów
+│   ├── api.js              # Klient Internet Archive, katalog GitHub i Libretro boxarts
 │   ├── ui.js               # Renderowanie kafelków, modali i powiadomień Toast
 │   └── app.js              # Koordynacja stanu, obsługa zdarzeń i debounce
 └── assets/
@@ -64,15 +66,13 @@ nRomSearch/
 
 ---
 
-## 🚀 Jak uruchomić lokalnie
-
-Ponieważ projekt nie wymaga budowania ani kompilacji (czysty Vanilla JavaScript ES6+):
+## 🚀 Uruchomienie lokalne
 
 ```bash
-# Uruchom prosty serwer HTTP (np. za pomocą Node.js / npx):
+# Uruchom prosty serwer HTTP:
 npx serve .
 
-# lub w Pythonie 3:
+# lub w Pythonie:
 python -m http.server 8000
 ```
 
