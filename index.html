@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a0b0e" />
+  <meta name="description" content="Lekka wyszukiwarka gier retro i downloader dla urządzeń z systemem Android i launchera Daijishō." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <title>nRomSearch - Retro ROM Downloader & Search</title>
+
+  <!-- PWA & Favicon -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="assets/icons/icon.svg" />
+  <link rel="apple-touch-icon" href="assets/icons/icon.svg" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+
+  <!-- Nagłówek aplikacji -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="./" class="logo-group">
+        <img src="assets/icons/icon.svg" alt="nRomSearch Icon" class="logo-icon" />
+        <h1 class="logo-title">nRom<span>Search</span></h1>
+      </a>
+
+      <div class="header-actions">
+        <button type="button" class="btn-header" id="btn-daijisho-guide" title="Instrukcja integracji z launcherem Daijishō">
+          📱 <span>Poradnik Daijishō</span>
+        </button>
+        <a href="https://github.com/nurbsn/nRomSearch" target="_blank" rel="noopener noreferrer" class="btn-header" title="Kod źródłowy na GitHubie">
+          ⭐ <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Główna zawartość -->
+  <main class="main-content">
+    <section class="hero-search-section">
+      <!-- Pole wyszukiwania -->
+      <div class="search-bar-wrapper">
+        <span class="search-icon-left" aria-hidden="true">🔍</span>
+        <input 
+          type="search" 
+          id="search-input" 
+          class="search-input" 
+          placeholder="Wyszukaj grę retro (np. Mario, Pokemon, Zelda, Sonic, Crash)..." 
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Wyszukaj grę retro"
+        />
+        <button type="button" id="search-clear-btn" class="search-clear-btn" style="display: none;" title="Wyczyść zapytanie" aria-label="Wyczyść wyszukiwanie">
+          ✕
+        </button>
+      </div>
+
+      <!-- Poziomy pasek platform -->
+      <div class="platform-filter-container">
+        <div id="platform-list" class="platform-filter-list" role="tablist" aria-label="Wybór platformy retro">
+          <!-- Wypełniane dynamicznie przez ui.js -->
+        </div>
+      </div>
+
+      <!-- Pasek opcji i statystyk -->
+      <div class="controls-bar">
+        <label class="filter-toggle-label">
+          <input type="checkbox" id="toggle-trusted" />
+          <span>Tylko zaufane kolekcje (No-Intro / Redump / TOSEC)</span>
+        </label>
+        <div id="results-stats" class="results-stats">
+          Inicjalizacja wyszukiwarki...
+        </div>
+      </div>
+    </section>
+
+    <!-- Siatka kafelków z grami -->
+    <section id="games-grid" class="games-grid" aria-live="polite">
+      <!-- Wypełniane dynamicznie przez ui.js -->
+    </section>
+
+    <!-- Paginacja -->
+    <nav id="pagination-container" aria-label="Nawigacja po stronach wyników"></nav>
+  </main>
+
+  <!-- Modal pobierania plików gry -->
+  <div id="game-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span style="font-size: 1.2rem;">🎮</span>
+          <h2 id="modal-game-title" class="modal-title">Szczegóły gry</h2>
+        </div>
+        <button type="button" id="game-modal-close" class="modal-close-btn" aria-label="Zamknij okno">✕</button>
+      </div>
+      <div id="modal-game-body" class="modal-body">
+        <!-- Renderowane przez ui.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal poradnika Daijishō -->
+  <div id="daijisho-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span style="font-size: 1.2rem;">📱</span>
+          <h2 class="modal-title">Integracja z Daijishō (Android)</h2>
+        </div>
+        <button type="button" id="daijisho-modal-close" class="modal-close-btn" aria-label="Zamknij okno">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.5;">
+          Aplikacja <strong>nRomSearch</strong> została zoptymalizowana do współpracy z popularnym launcherem konsolowym <strong>Daijishō</strong> na urządzeniach z systemem Android (np. Anbernic, Retroid Pocket, Odin, smartfony).
+        </p>
+
+        <div class="guide-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <span class="step-title">Katalog pobierania w przeglądarce</span>
+            <p>W przeglądarce na Androidzie (Chrome, Kiwi, Brave itp.) ustaw domyślny folder pobierania na katalog z ROM-ami danej konsoli (np. <code>Internal Storage/ROMs/SNES</code>) lub włącz opcję <em>„Pytaj, gdzie zapisać pliki”</em>.</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <span class="step-title">Synchronizacja biblioteki w Daijishō</span>
+            <p>Po pobraniu pliku ROM przejdź do launchera Daijishō, wybierz odpowiednią platformę i naciśnij <strong>Paths -> Sync library</strong>, aby nowo pobrana gra natychmiast pojawiła się z okładką.</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <span class="step-title">Szablon wywołania bezpośredniego z Daijishō</span>
+            <p>Możesz wywołać wyszukiwanie w nRomSearch bezpośrednio z poziomu Daijishō (Custom Player / Web Intent):</p>
+            <div class="code-block">https://nurbsn.github.io/nRomSearch/?platform={platform}&amp;q={title}</div>
+            <button type="button" class="btn-primary" id="btn-copy-intent-url" style="align-self: flex-start; margin-top: 6px;">
+              📋 Kopiuj szablon URL
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kontener powiadomień Toast -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Stopka -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <span>nRomSearch &bull; Wyszukiwarka otwartych zasobów archiwalnych Internet Archive</span>
+      <span>Kompatybilne z PWA &bull; GitHub Pages</span>
+    </div>
+  </footer>
+
+  <!-- Główny skrypt aplikacji -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

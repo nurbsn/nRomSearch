@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1a2e" />
+      <stop offset="50%" stop-color="#16213e" />
+      <stop offset="100%" stop-color="#0f3460" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe" />
+      <stop offset="100%" stop-color="#4facfe" />
+    </linearGradient>
+    <linearGradient id="btnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff0844" />
+      <stop offset="100%" stop-color="#ffb199" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad)" />
+  <rect width="504" height="504" x="4" y="4" rx="106" fill="none" stroke="url(#accentGrad)" stroke-width="4" stroke-opacity="0.4" />
+
+  <!-- Gamepad body silhouette -->
+  <g transform="translate(66, 120)">
+    <!-- Controller Body -->
+    <path d="M 70 80 
+             C 40 80, 10 130, 20 200 
+             C 30 270, 70 290, 110 260 
+             C 140 240, 160 210, 190 210 
+             C 220 210, 240 240, 270 260 
+             C 310 290, 350 270, 360 200 
+             C 370 130, 340 80, 310 80 
+             Z" 
+          fill="#1e2235" stroke="#333952" stroke-width="6" />
+
+    <!-- D-Pad (Left) -->
+    <g transform="translate(90, 140)">
+      <rect x="-10" y="-30" width="20" height="60" rx="4" fill="#323850" stroke="#00f2fe" stroke-width="2" />
+      <rect x="-30" y="-10" width="60" height="20" rx="4" fill="#323850" stroke="#00f2fe" stroke-width="2" />
+      <circle cx="0" cy="0" r="4" fill="#1e2235" />
+    </g>
+
+    <!-- Action Buttons (Right) -->
+    <g transform="translate(290, 140)">
+      <circle cx="0" cy="-22" r="10" fill="#ff4757" filter="url(#glow)" />
+      <circle cx="22" cy="0" r="10" fill="#2ed573" />
+      <circle cx="0" cy="22" r="10" fill="#ffa502" />
+      <circle cx="-22" cy="0" r="10" fill="#1e90ff" />
+    </g>
+
+    <!-- Center Search Lens & Wave -->
+    <g transform="translate(190, 125)">
+      <circle cx="0" cy="0" r="28" fill="none" stroke="url(#accentGrad)" stroke-width="6" />
+      <line x1="20" y1="20" x2="38" y2="38" stroke="url(#accentGrad)" stroke-width="6" stroke-linecap="round" />
+      <path d="M -14 0 Q 0 -12 14 0" fill="none" stroke="#00f2fe" stroke-width="3" stroke-linecap="round" opacity="0.8" />
+    </g>
+
+    <!-- Screen / Vent Details -->
+    <line x1="165" y1="180" x2="180" y2="180" stroke="#4facfe" stroke-width="4" stroke-linecap="round" />
+    <line x1="200" y1="180" x2="215" y2="180" stroke="#4facfe" stroke-width="4" stroke-linecap="round" />
+  </g>
+
+  <!-- Title Badge Text -->
+  <text x="256" y="445" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="4">
+    nRom<tspan fill="#00f2fe">Search</tspan>
+  </text>
+</svg>

@@ -1,0 +1,20 @@
+{
+  "name": "nRomSearch - Retro ROM Downloader & Search Engine",
+  "short_name": "nRomSearch",
+  "description": "Lekka wyszukiwarka gier retro i downloader dla urządzeń z Androidem i launchera Daijishō.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f0f13",
+  "theme_color": "#0f0f13",
+  "categories": ["games", "utilities", "entertainment"],
+  "icons": [
+    {
+      "src": "assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
