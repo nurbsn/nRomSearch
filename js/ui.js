@@ -2,7 +2,7 @@
  * nRomSearch - Moduł UI do renderowania interfejsu i obsługi modali
  */
 
-import { PLATFORMS } from './api.js';
+import { PLATFORMS, getExternalSearchLinks } from './api.js';
 
 /**
  * Formatowanie liczby pobrań (np. 12500 -> 12.5k)
@@ -34,6 +34,23 @@ export function renderPlatforms(container, activeId, onSelect) {
 
     container.appendChild(btn);
   });
+}
+
+/**
+ * Renderowanie szybkich linków wyszukiwania w zewnętrznych serwisach
+ * (FreeROMS, Romspedia, EmuParadise, Retrostic)
+ */
+export function renderExternalQuickLinks(container, query, platformId) {
+  if (!container) return;
+  const links = getExternalSearchLinks(query, platformId);
+
+  container.innerHTML = links.map(link => `
+    <a href="${link.url}" target="_blank" rel="noopener noreferrer" class="ext-search-pill" style="--brand-color: ${link.color};" title="Wyszukaj w ${link.name}">
+      <span>${link.icon}</span>
+      <span>${link.name}</span>
+      <span class="ext-icon-arrow">↗</span>
+    </a>
+  `).join('');
 }
 
 /**
@@ -360,6 +377,25 @@ export function populateFilesModal(modalBackdrop, game, filesData, onCopyToast) 
       `;
     }
   }
+
+  // Sekcja zewnętrznych serwisów (FreeROMS, Romspedia, EmuParadise, Retrostic)
+  const extLinks = getExternalSearchLinks(game.cleanTitle || game.title, game.platformId);
+  contentHtml += `
+    <div class="external-providers-container">
+      <h5 class="files-section-title">🌐 Szukaj w innych serwisach (Alternatywne źródła)</h5>
+      <div class="external-providers-grid">
+        ${extLinks.map(ext => `
+          <a href="${ext.url}" target="_blank" rel="noopener noreferrer" class="ext-provider-card" style="--brand-color: ${ext.color};" title="Wyszukaj ${game.title} na ${ext.domain}">
+            <div class="ext-provider-info">
+              <span class="ext-provider-icon">${ext.icon}</span>
+              <span class="ext-provider-name">${ext.name}</span>
+            </div>
+            <span class="ext-provider-action">Otwórz ↗</span>
+          </a>
+        `).join('')}
+      </div>
+    </div>
+  `;
 
   modalBody.innerHTML = contentHtml;
 

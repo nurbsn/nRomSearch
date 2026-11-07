@@ -267,6 +267,56 @@ a {
   background: var(--bg-surface-hover);
 }
 
+/* Szybkie linki do zewnętrznych wyszukiwarek (FreeROMS, Romspedia, EmuParadise, Retrostic) */
+.external-search-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 2px 0 4px;
+}
+
+.external-search-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.external-search-pills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ext-search-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.ext-search-pill:hover {
+  background: var(--bg-surface-elevated);
+  border-color: var(--brand-color, var(--accent-cyan));
+  color: var(--brand-color, var(--accent-cyan));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.ext-icon-arrow {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
 /* Platform filter scroll pills */
 .platform-filter-container {
   overflow-x: auto;
@@ -905,6 +955,63 @@ a {
 .btn-file-copy:hover {
   color: var(--text-main);
   background: var(--bg-surface-hover);
+}
+
+/* Modal External Providers Grid */
+.external-providers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.external-providers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.ext-provider-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text-main);
+  transition: all var(--transition-fast);
+}
+
+.ext-provider-card:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--brand-color, var(--accent-cyan));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.ext-provider-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ext-provider-icon {
+  font-size: 1.1rem;
+}
+
+.ext-provider-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.ext-provider-action {
+  font-size: 0.75rem;
+  color: var(--brand-color, var(--accent-cyan));
+  font-weight: 700;
 }
 
 /* Toast Notification */

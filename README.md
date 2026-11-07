@@ -14,6 +14,12 @@
 * **📚 Baza gier z repozytorium:** Zintegrowana baza tysięcy oficjalnych gier retro pobierana bezpośrednio z repozytorium GitHub dla każdej konsoli (tytuł, rok, twórca, wydawca). Błyskawiczne filtrowanie i wyszukiwanie lokalne w czasie rzeczywistym.
 * **🖼️ Okładki Box-art (3:4):** Duże, czytelne okładki gier pobierane w wysokiej rozdzielczości z repozytorium `libretro-thumbnails`. Estetyczny minimalistyczny wygląd kart bez zbędnych placeholderów.
 * **⚡ 1-klikowe wyszukiwanie i pobieranie ROM:** Kliknięcie gry z katalogu automatycznie odpytuje Internet Archive o bezpośrednie pliki ROM dla tego konkretnego tytułu, wyświetlając listę plików, formaty oraz dokładne rozmiary (MB/GB).
+* **🌐 Zewnętrzne serwisy ROM (Multi-Search Hub):** Szybkie skróty i bezpośrednie przeszukiwanie w popularnych serwisach retro:
+  * **FreeROMS.com**
+  * **Romspedia.com**
+  * **EmuParadise.me**
+  * **Retrostic.com**
+  Dostępne zarówno dynamicznie pod głównym paskiem wyszukiwania, jak i w oknie szczegółów każdej gry.
 * **🌐 Tryb wyszukiwarki Internet Archive:** Możliwość swobodnego przełączenia na bezpośrednie przeszukiwanie wszystkich zasobów i kolekcji Archive.org (*No-Intro*, *Redump*, *TOSEC*).
 * **100% Client-Side:** Aplikacja działa bezpośrednio w przeglądarce i nie wymaga zewnętrznego backendu.
 * **Optymalizacja pod ekrany dotykowe i gamepad:** Wygodna nawigacja dotykowa, responsywna siatka z kafelkami oraz obsługa kontrolerów fizycznych (D-pad / klawisze strzałek / Enter / Escape).

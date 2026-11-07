@@ -237,6 +237,79 @@ export function getLibretroBoxart(platform, cleanTitle) {
 }
 
 /**
+ * Generuje bezpośrednie linki do wyszukiwania w zewnętrznych serwisach ROM
+ * (FreeROMS, Romspedia, EmuParadise, Retrostic)
+ */
+export function getExternalSearchLinks(query = '', platformId = 'all') {
+  const q = (query || '').trim();
+  const platform = PLATFORMS.find(p => p.id === platformId);
+  const platformName = platform && platform.id !== 'all' ? platform.shortName : '';
+  const fullQuery = (q ? `${q} ${platformName}` : platformName).trim();
+  const encQuery = encodeURIComponent(fullQuery || 'ROM');
+
+  // Mapowanie platform dla FreeROMS
+  const freeRomsSystems = {
+    snes: 'snes', gba: 'gba', nes: 'nes', n64: 'n64',
+    genesis: 'genesis', ps1: 'psx', psp: 'psp', arcade: 'mame'
+  };
+
+  const freeRomsUrl = fullQuery
+    ? `https://www.google.com/search?q=${encodeURIComponent('site:freeroms.com ' + fullQuery)}`
+    : (freeRomsSystems[platformId] ? `https://www.freeroms.com/${freeRomsSystems[platformId]}_roms.htm` : 'https://www.freeroms.com/');
+
+  const romspediaUrl = fullQuery
+    ? `https://www.romspedia.com/search?search_term_string=${encQuery}`
+    : 'https://www.romspedia.com/roms';
+
+  const emuparadiseUrl = fullQuery
+    ? `https://www.emuparadise.me/roms/search.php?query=${encQuery}&section=all`
+    : 'https://www.emuparadise.me/';
+
+  const retrosticUrl = fullQuery
+    ? `https://www.retrostic.com/search?search_term_string=${encQuery}`
+    : 'https://www.retrostic.com/roms';
+
+  return [
+    {
+      id: 'freeroms',
+      name: 'FreeROMS',
+      domain: 'freeroms.com',
+      url: freeRomsUrl,
+      color: '#ff4757',
+      icon: '⚡',
+      badge: 'FreeROMS.com'
+    },
+    {
+      id: 'romspedia',
+      name: 'Romspedia',
+      domain: 'romspedia.com',
+      url: romspediaUrl,
+      color: '#2ed573',
+      icon: '📚',
+      badge: 'Romspedia.com'
+    },
+    {
+      id: 'emuparadise',
+      name: 'EmuParadise',
+      domain: 'emuparadise.me',
+      url: emuparadiseUrl,
+      color: '#1e90ff',
+      icon: '🕹️',
+      badge: 'EmuParadise.me'
+    },
+    {
+      id: 'retrostic',
+      name: 'Retrostic',
+      domain: 'retrostic.com',
+      url: retrosticUrl,
+      color: '#ffa502',
+      icon: '👾',
+      badge: 'Retrostic.com'
+    }
+  ];
+}
+
+/**
  * Formatowanie bajtów do czytelnej postaci (MB / GB)
  */
 export function formatBytes(bytes, decimals = 1) {

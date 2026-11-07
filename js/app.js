@@ -10,6 +10,7 @@ import {
   renderEmptyState,
   renderErrorState,
   renderPagination,
+  renderExternalQuickLinks,
   showModalLoading,
   populateFilesModal,
   closeModal,
@@ -41,6 +42,7 @@ const elements = {
   btnModeArchive: document.getElementById('mode-archive'),
   searchInput: document.getElementById('search-input'),
   searchClearBtn: document.getElementById('search-clear-btn'),
+  externalSearchPills: document.getElementById('external-search-pills'),
   platformList: document.getElementById('platform-list'),
   trustedToggleWrap: document.getElementById('trusted-toggle-wrap'),
   trustedToggle: document.getElementById('toggle-trusted'),
@@ -155,6 +157,16 @@ function updateClearButtonVisibility() {
 function getActivePlatformName() {
   const p = PLATFORMS.find(item => item.id === state.platformId);
   return p ? p.name : 'Wszystkie';
+}
+
+/**
+ * Aktualizuje bezpośrednie linki do serwisów zewnętrznych
+ * (FreeROMS, Romspedia, EmuParadise, Retrostic)
+ */
+function updateExternalLinksUI() {
+  if (elements.externalSearchPills) {
+    renderExternalQuickLinks(elements.externalSearchPills, state.query, state.platformId);
+  }
 }
 
 /**
@@ -306,6 +318,7 @@ function bindEvents() {
       state.query = e.target.value;
       state.page = 1;
       updateClearButtonVisibility();
+      updateExternalLinksUI();
 
       clearTimeout(searchDebounceTimer);
       // W trybie katalogu szybszy debounce (200ms)
@@ -326,6 +339,7 @@ function bindEvents() {
       }
       state.page = 1;
       updateClearButtonVisibility();
+      updateExternalLinksUI();
       performSearch();
     });
   }
@@ -388,10 +402,12 @@ function init() {
     state.platformId = newPlatformId;
     state.page = 1;
     renderPlatforms(elements.platformList, state.platformId, handlePlatformSelect);
+    updateExternalLinksUI();
     performSearch();
   }
 
   renderPlatforms(elements.platformList, state.platformId, handlePlatformSelect);
+  updateExternalLinksUI();
   bindEvents();
   performSearch();
 }
