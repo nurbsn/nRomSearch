@@ -187,6 +187,70 @@ export const PLATFORMS = [
   }
 ];
 
+/**
+ * Rozpoznaje i mapuje kod konsoli (np. z parametru URL lub tokenu Daijishō) na ID platformy w nRomSearch
+ */
+export function resolvePlatformId(input) {
+  if (!input) return null;
+  const s = String(input).trim().toLowerCase();
+
+  // 1. Bezpośrednie dopasowanie po id
+  const byId = PLATFORMS.find(p => p.id === s);
+  if (byId) return byId.id;
+
+  // 2. Bezpośrednie dopasowanie po daijishoCode
+  const byDaijisho = PLATFORMS.find(p => p.daijishoCode === s);
+  if (byDaijisho) return byDaijisho.id;
+
+  // 3. Powszechne aliasy z emulatorów i launchera Daijishō
+  const ALIASES = {
+    'megadrive': 'genesis',
+    'mega_drive': 'genesis',
+    'sega': 'genesis',
+    'genesis': 'genesis',
+    'md': 'genesis',
+    'psx': 'ps1',
+    'psone': 'ps1',
+    'playstation': 'ps1',
+    'playstation1': 'ps1',
+    'playstation_1': 'ps1',
+    'playstation2': 'ps2',
+    'playstation_2': 'ps2',
+    'gc': 'gamecube',
+    'gcn': 'gamecube',
+    'dc': 'dreamcast',
+    'dreamcast': 'dreamcast',
+    'supernintendo': 'snes',
+    'super_nintendo': 'snes',
+    'famicom': 'nes',
+    'superfamicom': 'snes',
+    'gameboy': 'gbc',
+    'game_boy': 'gbc',
+    'gameboycolor': 'gbc',
+    'game_boy_color': 'gbc',
+    'gameboyadvance': 'gba',
+    'game_boy_advance': 'gba',
+    'mame': 'arcade',
+    'fbneo': 'arcade',
+    'fba': 'arcade'
+  };
+
+  return ALIASES[s] || null;
+}
+
+/**
+ * Zwraca gotowy obiekt konfiguracyjny playera dla launchera Daijishō w formacie JSON
+ */
+export function getDaijishoPlayerJson() {
+  return JSON.stringify({
+    name: "nRomSearch (Pobierz ROM)",
+    uniqueId: "nromsearch.downloader",
+    description: "Wyszukiwarka i downloader gier retro nRomSearch dla launchera Daijishō",
+    acceptedFilenameRegex: "^(.*)$",
+    amStartArguments: "-a android.intent.action.VIEW -d \"https://nurbsn.github.io/nRomSearch/?platform={platform_shortname}&q={file.nameWithoutExtension}\""
+  }, null, 2);
+}
+
 export const ROM_EXTENSIONS = new Set([
   '.zip', '.7z', '.rar',
   '.sfc', '.smc',

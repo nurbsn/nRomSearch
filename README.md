@@ -38,17 +38,79 @@
 
 ---
 
-## 📱 Integracja z launcherem Daijishō
+## 📱 Integracja z launcherem Daijishō (Krok po kroku)
 
-Aplikację można zintegrować z Daijishō na urządzeniach przenośnych (np. Retroid Pocket, Anbernic, AYN Odin, smartfony):
+Aplikacja **nRomSearch** została w 100% zoptymalizowana pod urządzenia retro z systemem Android (Retroid Pocket, Anbernic, AYN Odin, Miyoo, smartfony itp.) oraz launcher **Daijishō**.
 
-1. **Folder pobierania:** W przeglądarce mobilnej ustaw domyślny folder pobierania na katalog pamięci ROM na karcie SD lub w pamięci urządzenia (np. `/ROMs/<platforma>`).
-2. **Synchronizacja:** Po pobraniu pliku ROM kliknij w Daijishō `Paths -> Sync library` dla danej konsoli.
-3. **Skrót wyszukiwania (Web Intent):**
-   Możesz skonfigurować wywołanie nRomSearch z szablonem:
-   ```text
-   https://nurbsn.github.io/nRomSearch/?platform={platform}&q={title}
-   ```
+### Sposób 1: Dodanie nRomSearch jako aplikacji do Daijishō (PWA - Zalecane)
+
+1. **Instalacja PWA w przeglądarce:**
+   * Otwórz stronę `https://nurbsn.github.io/nRomSearch/` w mobilnej przeglądarce (Google Chrome, Brave lub Edge) na swojej konsoli.
+   * W prawym górnym rogu kliknij menu **trzech kropek (⋮)** i wybierz **„Zainstaluj aplikację”** (lub *„Dodaj do ekranu głównego”*).
+   * Aplikacja zainstaluje się jako samodzielne, pełnoekranowe okno bez zbędnych pasków adresu.
+2. **Odnalezienie w Daijishō:**
+   * Uruchom launcher Daijishō i przejdź do górnej zakładki **Apps (Aplikacje)**.
+   * Na liście zainstalowanych aplikacji znajdziesz **nRomSearch** z retro-ikoną gamepada.
+3. **Przypięcie do Ulubionych:**
+   * Przytrzymaj palcem (lub przyciskiem wyboru na kontrolerze) kafelek **nRomSearch**.
+   * Wybierz ikonę gwiazdki **⭐ Add to favorites**. Od teraz wyszukiwarka jest zawsze pod ręką na Twoim pulpicie Daijishō!
+
+---
+
+### Sposób 2: Custom Player w Daijishō (Wywołanie z poziomu konsoli)
+
+Możesz dodać nRomSearch jako alternatywny odtwarzacz gier (Player), dzięki czemu kliknięcie w brakujący tytuł w Daijishō otworzy wyszukiwarkę z gotowym zapytaniem:
+
+1. **Otwórz kreator graczy:**
+   * W Daijishō wejdź w: **Settings ⚙️ ➔ Library ➔ Inspect players**.
+   * Kliknij ikonę plusa **+ (Add player)** w prawym górnym rogu ekranu.
+2. **Wypełnij parametry gracza:**
+   * **Player name:** `nRomSearch (Pobierz ROM)`
+   * **Unique ID:** `nromsearch.downloader`
+   * **Accepted filename regex:** `^.*$`
+   * **Player am start arguments:**
+     ```text
+     -a android.intent.action.VIEW -d "https://nurbsn.github.io/nRomSearch/?platform={platform_shortname}&q={file.nameWithoutExtension}"
+     ```
+3. **Zapisz i przypisz do platformy:**
+   * Kliknij **Save**.
+   * Wejdź w wybraną konsolę (np. SNES, PS1) ➔ kliknij ikonę ołówka **✏️ (Edit platform)** na dole ➔ w sekcji **Player** zaznacz `nRomSearch (Pobierz ROM)`.
+
+---
+
+### Sposób 3: Konfiguracja folderów ROM i automatyczna synchronizacja
+
+1. **Struktura katalogów:** W pamięci urządzenia lub na karcie MicroSD przygotuj foldery dla konsol, np.:
+   `/storage/emulated/0/ROMs/SNES/`, `/storage/emulated/0/ROMs/GBA/`, `/storage/emulated/0/ROMs/PS1/`.
+2. **Folder pobierania w przeglądarce:**
+   * W przeglądarce konsoli wejdź w **Ustawienia ➔ Pobrane pliki**.
+   * Zaznacz opcję: ☑️ **„Pytaj, gdzie zapisać każdy plik”** (lub ustaw katalog `ROMs`).
+3. **Powiązanie w Daijishō:**
+   * W Daijishō wybierz daną konsolę ➔ kliknij na dole **Paths** ➔ **Add path (+)** ➔ wskaż folder z grami.
+4. **Synchronizacja:**
+   * Po pobraniu pliku ROM kliknij **Sync library** (lub włącz w Daijishō **Settings ⚙️ ➔ Library ➔ Auto sync on launch**). Daijishō samoczynnie pobierze trójwymiarowe okładki, zrzuty ekranu i opisy!
+
+---
+
+### Tabela kodów platform Daijishō (`platform_shortname`)
+
+nRomSearch automatycznie rozpoznaje kody przesyłane z Daijishō:
+
+| Platforma | Kod Daijishō (`{platform_shortname}`) | Docelowy katalog bazy |
+|:---|:---:|:---|
+| Super Nintendo | `snes` | Baza SNES |
+| Game Boy Advance | `gba` | Baza GBA |
+| Game Boy / Color | `gbc` / `gb` | Baza Game Boy Color |
+| Nintendo NES | `nes` | Baza NES / Famicom |
+| Nintendo 64 | `n64` | Baza Nintendo 64 |
+| Nintendo DS | `nds` | Baza Nintendo DS |
+| Nintendo GameCube | `gc` / `gamecube` | Baza GameCube |
+| Sony PlayStation 1 | `psx` / `ps1` | Baza PlayStation 1 |
+| Sony PlayStation 2 | `ps2` | Baza PlayStation 2 |
+| PlayStation Portable | `psp` | Baza PSP |
+| Sega Genesis / Mega Drive | `megadrive` / `genesis` | Baza Mega Drive |
+| Sega Dreamcast | `dc` / `dreamcast` | Baza Dreamcast |
+| Arcade | `arcade` / `mame` / `fbneo` | Baza Arcade / MAME |
 
 ---
 

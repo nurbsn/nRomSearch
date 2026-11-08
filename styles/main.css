@@ -1330,6 +1330,62 @@ a {
 }
 
 /* Daijisho Guide Content Styles */
+#daijisho-modal .modal-window {
+  max-width: 780px;
+  max-height: 88vh;
+}
+
+.guide-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 10px;
+  margin-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.guide-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.guide-tab-btn:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
+  border-color: var(--border-active);
+}
+
+.guide-tab-btn.active {
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  color: #000;
+  font-weight: 700;
+  box-shadow: var(--shadow-glow);
+}
+
+.guide-tab-pane {
+  display: none;
+}
+
+.guide-tab-pane.active {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: fadeIn 0.2s ease forwards;
+}
+
 .guide-step {
   display: flex;
   gap: 14px;
@@ -1359,6 +1415,7 @@ a {
   gap: 6px;
   font-size: 0.9rem;
   line-height: 1.5;
+  flex: 1;
 }
 
 .step-title {
@@ -1377,6 +1434,147 @@ a {
   word-break: break-all;
   user-select: all;
   margin-top: 4px;
+}
+
+/* Podgląd formularza playera Daijishō */
+.daijisho-form-card {
+  background: #08090d;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.daijisho-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.daijisho-form-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.daijisho-input-copy-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.daijisho-form-val {
+  flex: 1;
+  background: #040507;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: var(--accent-cyan);
+  word-break: break-all;
+  user-select: all;
+}
+
+.btn-copy-small {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.btn-copy-small:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+}
+
+/* Przyciski akcji poradnika */
+.guide-actions-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+/* Wskazówka / Callout box */
+.guide-callout-tip {
+  display: flex;
+  gap: 12px;
+  background: rgba(0, 242, 254, 0.06);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+.guide-callout-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+/* Tabela kodów platform */
+.guide-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  margin-top: 6px;
+}
+
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.guide-table th {
+  background: var(--bg-surface-elevated);
+  padding: 10px 14px;
+  color: var(--text-muted);
+  font-weight: 700;
+  border-bottom: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+
+.guide-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-main);
+}
+
+.guide-table tr:last-child td {
+  border-bottom: none;
+}
+
+.guide-table tr:hover td {
+  background: var(--bg-surface-hover);
+}
+
+.guide-code-badge {
+  background: #08090c;
+  color: var(--accent-cyan);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.82rem;
+  border: 1px solid var(--border-subtle);
 }
 
 /* Footer */

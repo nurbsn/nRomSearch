@@ -224,43 +224,315 @@
     <div class="modal-window">
       <div class="modal-header">
         <div class="modal-title-wrap">
-          <span style="font-size: 1.2rem;">📱</span>
+          <span style="font-size: 1.25rem;">📱</span>
           <h2 class="modal-title">Integracja z Daijishō (Android)</h2>
         </div>
         <button type="button" id="daijisho-modal-close" class="modal-close-btn" aria-label="Zamknij okno">✕</button>
       </div>
+
       <div class="modal-body">
-        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.5;">
-          Aplikacja <strong>nRomSearch</strong> została zoptymalizowana do współpracy z popularnym launcherem konsolowym <strong>Daijishō</strong> na urządzeniach z systemem Android (np. Anbernic, Retroid Pocket, Odin, smartfony).
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 2px;">
+          Aplikacja <strong>nRomSearch</strong> została w 100% dostosowana do urządzeń retro z Androidem (Anbernic, Retroid Pocket, AYN Odin, smartfony) oraz launchera <strong>Daijishō</strong>. Wybierz dogodną metodę integracji:
         </p>
 
-        <div class="guide-step">
-          <div class="step-num">1</div>
-          <div class="step-content">
-            <span class="step-title">Katalog pobierania w przeglądarce</span>
-            <p>W przeglądarce na Androidzie (Chrome, Kiwi, Brave itp.) ustaw domyślny folder pobierania na katalog z ROM-ami danej konsoli (np. <code>Internal Storage/ROMs/SNES</code>) lub włącz opcję <em>„Pytaj, gdzie zapisać pliki”</em>.</p>
+        <!-- Zakładki poradnika -->
+        <div class="guide-tabs" role="tablist">
+          <button type="button" class="guide-tab-btn active" data-tab="tab-pwa" role="tab" aria-selected="true">
+            <span>📱</span> 1. Aplikacja w Daijishō (PWA)
+          </button>
+          <button type="button" class="guide-tab-btn" data-tab="tab-player" role="tab" aria-selected="false">
+            <span>⚡</span> 2. Custom Player (Intent)
+          </button>
+          <button type="button" class="guide-tab-btn" data-tab="tab-paths" role="tab" aria-selected="false">
+            <span>📁</span> 3. Foldery i Synchronizacja
+          </button>
+          <button type="button" class="guide-tab-btn" data-tab="tab-codes" role="tab" aria-selected="false">
+            <span>🏷️</span> 4. Kody platform
+          </button>
+        </div>
+
+        <!-- ============================================================
+             ZAKŁADKA 1: PWA (Aplikacja w Daijishō)
+             ============================================================ -->
+        <div class="guide-tab-pane active" id="tab-pwa" role="tabpanel">
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <span class="step-title">Zainstaluj nRomSearch jako aplikację (PWA)</span>
+              <p>Otwórz stronę <code>https://nurbsn.github.io/nRomSearch/</code> w przeglądarce mobilnej (Google Chrome, Brave lub Edge) na swojej konsoli.</p>
+              <p>W prawym górnym rogu przeglądarki kliknij menu <strong>trzech kropek (⋮)</strong> i wybierz <strong>„Zainstaluj aplikację”</strong> (lub <em>„Dodaj do ekranu głównego”</em>). Potwierdź instalację.</p>
+              <p style="font-size: 0.85rem; color: var(--accent-cyan);">✓ nRomSearch zainstaluje się jako pełnoprawna aplikacja pełnoekranowa bez pasków adresu przeglądarki.</p>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <span class="step-title">Otwórz Daijishō i przejdź do zakładki „Apps”</span>
+              <p>Uruchom launcher Daijishō i na górnym poziomym pasku przełącz się na zakładkę <strong>Apps (Aplikacje)</strong>.</p>
+              <p>Na liście zainstalowanych aplikacji znajdziesz <strong>nRomSearch</strong> z charakterystyczną retro-ikoną.</p>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <span class="step-title">Przypnij nRomSearch do Ulubionych (Pin to Favorites)</span>
+              <p>Przytrzymaj palcem (lub wciśnij przycisk kontekstowy na padzie) na kafelku <strong>nRomSearch</strong>.</p>
+              <p>Wybierz ikonę gwiazdki <strong>⭐ Add to favorites (Przypnij)</strong>.</p>
+              <p><strong>Gotowe!</strong> nRomSearch jest na stałe dostępny na głównym pulpicie launchera Daijishō. Możesz w każdej chwili jednym kliknięciem uruchomić wyszukiwarkę i pobrać nową grę.</p>
+            </div>
+          </div>
+
+          <div class="guide-callout-tip">
+            <span class="guide-callout-icon">💡</span>
+            <div>
+              <strong>Kolejny krok:</strong> Aby pobierane gry od razu pojawiały się w Twojej bibliotece z okładkami, skonfiguruj foldery w zakładce <strong>3. Foldery i Synchronizacja</strong>.
+            </div>
           </div>
         </div>
 
-        <div class="guide-step">
-          <div class="step-num">2</div>
-          <div class="step-content">
-            <span class="step-title">Synchronizacja biblioteki w Daijishō</span>
-            <p>Po pobraniu pliku ROM przejdź do launchera Daijishō, wybierz odpowiednią platformę i naciśnij <strong>Paths -> Sync library</strong>, aby nowo pobrana gra natychmiast pojawiła się z okładką.</p>
+        <!-- ============================================================
+             ZAKŁADKA 2: Custom Player (Web Intent w Daijishō)
+             ============================================================ -->
+        <div class="guide-tab-pane" id="tab-player" role="tabpanel">
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
+            Ta metoda pozwala dodać nRomSearch jako alternatywny odtwarzacz w Daijishō. Gdy klikniesz grę, launcher może automatycznie otworzyć nRomSearch z wybraną konsolą i wpisanym tytułem!
+          </p>
+
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <span class="step-title">Otwórz menu „Inspect players” w Daijishō</span>
+              <p>W launcherze Daijishō wejdź w <strong>Settings (Ustawienia) ⚙️</strong> na dolnym/bocznym pasku.</p>
+              <p>Wybierz sekcję <strong>Library (Biblioteka)</strong> ➔ a następnie kliknij <strong>Inspect players (Przeglądaj graczy)</strong>.</p>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <span class="step-title">Kliknij „+” (Dodaj playera) i uzupełnij pola:</span>
+              <p>W prawym górnym rogu naciśnij ikonę plusa <strong>+ (Add player)</strong> i wypełnij pola formularza:</p>
+
+              <div class="daijisho-form-card">
+                <div class="daijisho-form-row">
+                  <span class="daijisho-form-label">Player name (Nazwa playera):</span>
+                  <div class="daijisho-input-copy-wrap">
+                    <span class="daijisho-form-val" id="val-player-name">nRomSearch (Pobierz ROM)</span>
+                    <button type="button" class="btn-copy-small btn-copy-inline" data-target="val-player-name">📋 Kopiuj</button>
+                  </div>
+                </div>
+
+                <div class="daijisho-form-row">
+                  <span class="daijisho-form-label">Unique ID:</span>
+                  <div class="daijisho-input-copy-wrap">
+                    <span class="daijisho-form-val" id="val-player-id">nromsearch.downloader</span>
+                    <button type="button" class="btn-copy-small btn-copy-inline" data-target="val-player-id">📋 Kopiuj</button>
+                  </div>
+                </div>
+
+                <div class="daijisho-form-row">
+                  <span class="daijisho-form-label">Accepted filename regex:</span>
+                  <div class="daijisho-input-copy-wrap">
+                    <span class="daijisho-form-val" id="val-player-regex">^.*$</span>
+                    <button type="button" class="btn-copy-small btn-copy-inline" data-target="val-player-regex">📋 Kopiuj</button>
+                  </div>
+                </div>
+
+                <div class="daijisho-form-row">
+                  <span class="daijisho-form-label">Player am start arguments:</span>
+                  <div class="daijisho-input-copy-wrap">
+                    <span class="daijisho-form-val" id="val-player-args">-a android.intent.action.VIEW -d "https://nurbsn.github.io/nRomSearch/?platform={platform_shortname}&amp;q={file.nameWithoutExtension}"</span>
+                    <button type="button" class="btn-copy-small btn-copy-inline" data-target="val-player-args">📋 Kopiuj</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <span class="step-title">Zapisz i przypisz gracza do wybranej konsoli</span>
+              <p>Kliknij <strong>Save (Zapisz)</strong> w Daijishō.</p>
+              <p>Przejdź do platformy (np. SNES, PS1, GBA) w menu konsol ➔ kliknij ikonę ołówka <strong>✏️ (Edit platform)</strong> na dolnym pasku ➔ w sekcji <strong>Player</strong> zaznacz <em>nRomSearch (Pobierz ROM)</em> jako domyślnego lub alternatywnego playera.</p>
+            </div>
+          </div>
+
+          <div class="guide-actions-bar">
+            <button type="button" class="btn-primary" id="btn-copy-amstart">
+              📋 Kopiuj całe amStartArguments
+            </button>
+            <button type="button" class="btn-page" id="btn-copy-player-json">
+              📋 Kopiuj plik konfiguracyjny JSON
+            </button>
+            <button type="button" class="btn-page" id="btn-download-player-json">
+              💾 Pobierz player.json
+            </button>
           </div>
         </div>
 
-        <div class="guide-step">
-          <div class="step-num">3</div>
-          <div class="step-content">
-            <span class="step-title">Szablon wywołania bezpośredniego z Daijishō</span>
-            <p>Możesz wywołać wyszukiwanie w nRomSearch bezpośrednio z poziomu Daijishō (Custom Player / Web Intent):</p>
-            <div class="code-block">https://nurbsn.github.io/nRomSearch/?platform={platform}&amp;q={title}</div>
-            <button type="button" class="btn-primary" id="btn-copy-intent-url" style="align-self: flex-start; margin-top: 6px;">
+        <!-- ============================================================
+             ZAKŁADKA 3: Foldery pobierania & Sync
+             ============================================================ -->
+        <div class="guide-tab-pane" id="tab-paths" role="tabpanel">
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <span class="step-title">Utwórz katalogi ROM w pamięci urządzenia</span>
+              <p>W pamięci wewnętrznej konsoli lub na karcie MicroSD przygotuj zorganizowane katalogi dla każdej konsoli, na przykład:</p>
+              <div class="code-block">/storage/emulated/0/ROMs/SNES/<br>/storage/emulated/0/ROMs/GBA/<br>/storage/emulated/0/ROMs/PS1/</div>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <span class="step-title">Włącz pytanie o miejsce zapisu w przeglądarce</span>
+              <p>W przeglądarce (Google Chrome, Brave lub Kiwi) przejdź do: <strong>Ustawienia ➔ Pobrane pliki (Downloads)</strong>.</p>
+              <p>Włącz suwak: ☑️ <strong>„Pytaj, gdzie zapisać każdy plik”</strong> (lub ustaw domyślny folder na katalog z grami).</p>
+              <p style="font-size: 0.85rem; color: var(--accent-cyan);">✓ Dzięki temu przy każdym kliknięciu „Pobierz ROM” przeglądarka od razu zapyta, do jakiego folderu konsoli zapisać grę.</p>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <span class="step-title">Wskaż ścieżkę folderu w Daijishō (Paths)</span>
+              <p>W launcherze Daijishō przejdź do danej konsoli (np. <em>Super Nintendo Entertainment System</em>).</p>
+              <p>Na dolnym pasku naciśnij przycisk <strong>Paths (Ścieżki)</strong>.</p>
+              <p>Kliknij <strong>Add path (+)</strong> i wskaż utworzony folder (np. <code>ROMs/SNES/</code>).</p>
+            </div>
+          </div>
+
+          <div class="guide-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <span class="step-title">Synchronizacja biblioteki w Daijishō (Sync library)</span>
+              <p>Po pobraniu gry kliknij w Daijishō przycisk <strong>Sync library</strong> (lub ikonę odświeżania na ekranie konsoli).</p>
+              <p>Daijishō natychmiast rozpozna pobrany plik ROM, pobierze do niego trójwymiarową okładkę (box-art), zrzuty ekranu oraz oficjalny opis i datę wydania.</p>
+            </div>
+          </div>
+
+          <div class="guide-callout-tip">
+            <span class="guide-callout-icon">💡</span>
+            <div>
+              <strong>Automatyczna synchronizacja:</strong> W Daijishō przejdź do <strong>Settings ⚙️ ➔ Library</strong> i włącz opcję <strong>Auto sync on launch</strong>. Od teraz każda nowo pobrana gra z nRomSearch pojawi się na Twoim pulpicie automatycznie!
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================
+             ZAKŁADKA 4: Kody platform (Tabela parametrów URL)
+             ============================================================ -->
+        <div class="guide-tab-pane" id="tab-codes" role="tabpanel">
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
+            Gdy Daijishō wywołuje link z parametrem <code>?platform={platform_shortname}</code>, nRomSearch automatycznie rozpoznaje kody konsol i aktywuje odpowiednią bazę gier:
+          </p>
+
+          <div class="guide-table-wrap">
+            <table class="guide-table">
+              <thead>
+                <tr>
+                  <th>Platforma</th>
+                  <th>Ikona</th>
+                  <th>Kod Daijishō</th>
+                  <th>Docelowa baza w nRomSearch</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Super Nintendo (SNES)</td>
+                  <td>🟣</td>
+                  <td><span class="guide-code-badge">snes</span></td>
+                  <td>Baza SNES</td>
+                </tr>
+                <tr>
+                  <td>Game Boy Advance (GBA)</td>
+                  <td>🔵</td>
+                  <td><span class="guide-code-badge">gba</span></td>
+                  <td>Baza Game Boy Advance</td>
+                </tr>
+                <tr>
+                  <td>Game Boy / Color</td>
+                  <td>🟢</td>
+                  <td><span class="guide-code-badge">gbc</span> / <span class="guide-code-badge">gb</span></td>
+                  <td>Baza GB / GBC</td>
+                </tr>
+                <tr>
+                  <td>Nintendo Entertainment System</td>
+                  <td>🔴</td>
+                  <td><span class="guide-code-badge">nes</span></td>
+                  <td>Baza NES / Famicom</td>
+                </tr>
+                <tr>
+                  <td>Nintendo 64 (N64)</td>
+                  <td>🟡</td>
+                  <td><span class="guide-code-badge">n64</span></td>
+                  <td>Baza Nintendo 64</td>
+                </tr>
+                <tr>
+                  <td>Nintendo DS (NDS)</td>
+                  <td>⚪</td>
+                  <td><span class="guide-code-badge">nds</span></td>
+                  <td>Baza Nintendo DS</td>
+                </tr>
+                <tr>
+                  <td>Nintendo GameCube</td>
+                  <td>🟣</td>
+                  <td><span class="guide-code-badge">gc</span> / <span class="guide-code-badge">gamecube</span></td>
+                  <td>Baza GameCube</td>
+                </tr>
+                <tr>
+                  <td>Sony PlayStation (PS1 / PSX)</td>
+                  <td>🟦</td>
+                  <td><span class="guide-code-badge">psx</span> / <span class="guide-code-badge">ps1</span></td>
+                  <td>Baza PlayStation 1</td>
+                </tr>
+                <tr>
+                  <td>Sony PlayStation 2 (PS2)</td>
+                  <td>🔷</td>
+                  <td><span class="guide-code-badge">ps2</span></td>
+                  <td>Baza PlayStation 2</td>
+                </tr>
+                <tr>
+                  <td>PlayStation Portable (PSP)</td>
+                  <td>💠</td>
+                  <td><span class="guide-code-badge">psp</span></td>
+                  <td>Baza PSP</td>
+                </tr>
+                <tr>
+                  <td>Sega Genesis / Mega Drive</td>
+                  <td>⚫</td>
+                  <td><span class="guide-code-badge">megadrive</span> / <span class="guide-code-badge">genesis</span></td>
+                  <td>Baza Mega Drive</td>
+                </tr>
+                <tr>
+                  <td>Sega Dreamcast</td>
+                  <td>🌀</td>
+                  <td><span class="guide-code-badge">dc</span> / <span class="guide-code-badge">dreamcast</span></td>
+                  <td>Baza Dreamcast</td>
+                </tr>
+                <tr>
+                  <td>Arcade (MAME / FBNeo)</td>
+                  <td>🕹️</td>
+                  <td><span class="guide-code-badge">arcade</span> / <span class="guide-code-badge">mame</span></td>
+                  <td>Baza Arcade</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div style="margin-top: 10px;">
+            <span class="step-title">Uniwersalny szablon URL zapytania:</span>
+            <div class="code-block" id="val-url-template">https://nurbsn.github.io/nRomSearch/?platform={platform_shortname}&amp;q={file.nameWithoutExtension}</div>
+            <button type="button" class="btn-primary" id="btn-copy-intent-url" style="margin-top: 8px;">
               📋 Kopiuj szablon URL
             </button>
           </div>
         </div>
+
       </div>
     </div>
   </div>

@@ -2,7 +2,15 @@
  * nRomSearch - Główny kontroler aplikacji (App Orchestrator)
  */
 
-import { PLATFORMS, searchGames, searchCatalog, findRomForCatalogGame, fetchGameFiles } from './api.js';
+import { 
+  PLATFORMS, 
+  searchGames, 
+  searchCatalog, 
+  findRomForCatalogGame, 
+  fetchGameFiles,
+  resolvePlatformId,
+  getDaijishoPlayerJson 
+} from './api.js';
 import {
   renderPlatforms,
   renderSkeletons,
@@ -136,8 +144,11 @@ function syncStateFromUrl() {
     state.query = q;
     if (elements.searchInput) elements.searchInput.value = q;
   }
-  if (platform && PLATFORMS.some(p => p.id === platform)) {
-    state.platformId = platform;
+  if (platform) {
+    const resolvedId = resolvePlatformId(platform);
+    if (resolvedId) {
+      state.platformId = resolvedId;
+    }
   }
   if (genre) {
     state.genre = genre;
@@ -512,18 +523,95 @@ function bindEvents() {
     }
   });
 
-  // Kopiowanie szablonu URL integracji Daijishō
-  if (elements.copyIntentBtn) {
-    elements.copyIntentBtn.addEventListener('click', async () => {
-      const template = 'https://nurbsn.github.io/nRomSearch/?platform={platform}&q={title}';
-      try {
-        await navigator.clipboard.writeText(template);
-        showToast(elements.toastContainer, 'Skopiowano szablon URL dla Daijishō!');
-      } catch {
-        showToast(elements.toastContainer, 'Nie udało się skopiować.');
+  // Obsługa zakładek w modalu przewodnika Daijishō
+  const guideTabBtns = document.querySelectorAll('.guide-tab-btn');
+  const guideTabPanes = document.querySelectorAll('.guide-tab-pane');
+  guideTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTabId = btn.getAttribute('data-tab');
+      guideTabBtns.forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      guideTabPanes.forEach(p => p.classList.remove('active'));
+
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const targetPane = document.getElementById(targetTabId);
+      if (targetPane) {
+        targetPane.classList.add('active');
       }
     });
-  }
+  });
+
+  // Kopiowanie pojedynczych wartości formularza Daijishō (.btn-copy-inline)
+  document.querySelectorAll('.btn-copy-inline').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const targetId = btn.getAttribute('data-target');
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        const text = targetEl.textContent.trim();
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast(elements.toastContainer, 'Skopiowano do schowka!');
+        } catch {
+          showToast(elements.toastContainer, 'Nie udało się skopiować.');
+        }
+      }
+    });
+  });
+
+  // Kopiowanie amStartArguments do schowka
+  const btnCopyAmStart = document.getElementById('btn-copy-amstart');
+  btnCopyAmStart?.addEventListener('click', async () => {
+    const text = '-a android.intent.action.VIEW -d "https://nurbsn.github.io/nRomSearch/?platform={platform_shortname}&q={file.nameWithoutExtension}"';
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast(elements.toastContainer, 'Skopiowano argumenty amStartArguments do schowka!');
+    } catch {
+      showToast(elements.toastContainer, 'Nie udało się skopiować.');
+    }
+  });
+
+  // Kopiowanie pełnego kodu JSON playera Daijishō
+  const btnCopyPlayerJson = document.getElementById('btn-copy-player-json');
+  btnCopyPlayerJson?.addEventListener('click', async () => {
+    const jsonStr = getDaijishoPlayerJson();
+    try {
+      await navigator.clipboard.writeText(jsonStr);
+      showToast(elements.toastContainer, 'Skopiowano kod JSON playera Daijishō!');
+    } catch {
+      showToast(elements.toastContainer, 'Nie udało się skopiować.');
+    }
+  });
+
+  // Pobieranie pliku nromsearch.downloader.json
+  const btnDownloadPlayerJson = document.getElementById('btn-download-player-json');
+  btnDownloadPlayerJson?.addEventListener('click', () => {
+    const jsonStr = getDaijishoPlayerJson();
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'nromsearch.downloader.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(elements.toastContainer, 'Pobrano plik nromsearch.downloader.json');
+  });
+
+  // Kopiowanie szablonu URL zapytania Daijishō
+  const btnCopyIntentUrl = document.getElementById('btn-copy-intent-url');
+  btnCopyIntentUrl?.addEventListener('click', async () => {
+    const template = 'https://nurbsn.github.io/nRomSearch/?platform={platform_shortname}&q={file.nameWithoutExtension}';
+    try {
+      await navigator.clipboard.writeText(template);
+      showToast(elements.toastContainer, 'Skopiowano szablon URL dla Daijishō!');
+    } catch {
+      showToast(elements.toastContainer, 'Nie udało się skopiować.');
+    }
+  });
 }
 
 /**
