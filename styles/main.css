@@ -320,10 +320,22 @@ a {
 /* Platform filter scroll pills */
 .platform-filter-container {
   overflow-x: auto;
-  padding-bottom: 6px;
+  padding-bottom: 8px;
+  --scrollbar-thumb: var(--border-active);
+  --scrollbar-track: transparent;
   scrollbar-width: thin;
-  scrollbar-color: var(--bg-surface-hover) transparent;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
   -webkit-overflow-scrolling: touch;
+}
+
+@supports not (scrollbar-color: auto) {
+  .platform-filter-container::-webkit-scrollbar {
+    height: 6px;
+  }
+  .platform-filter-container::-webkit-scrollbar-thumb {
+    background: var(--border-active);
+    border-radius: 4px;
+  }
 }
 
 .platform-filter-list {
@@ -1037,6 +1049,23 @@ a {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  --scrollbar-thumb: var(--border-active);
+  --scrollbar-track: var(--bg-surface);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+@supports not (scrollbar-color: auto) {
+  .modal-body::-webkit-scrollbar {
+    width: 8px;
+  }
+  .modal-body::-webkit-scrollbar-track {
+    background: var(--bg-surface);
+  }
+  .modal-body::-webkit-scrollbar-thumb {
+    background: var(--border-active);
+    border-radius: 4px;
+  }
 }
 
 /* Modal Game Header Summary */
@@ -1337,19 +1366,20 @@ a {
 
 .guide-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
   border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 10px;
-  margin-bottom: 6px;
-  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px;
+  margin-bottom: 10px;
+  overflow: visible;
 }
 
 .guide-tab-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 9px 14px;
   background: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
@@ -1357,7 +1387,9 @@ a {
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  white-space: nowrap;
+  flex: 1 1 calc(25% - 8px);
+  min-width: 130px;
+  text-align: center;
   transition: all var(--transition-fast);
 }
 
@@ -1535,6 +1567,20 @@ a {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
   margin-top: 6px;
+  --scrollbar-thumb: var(--border-active);
+  --scrollbar-track: var(--bg-surface-elevated);
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+@supports not (scrollbar-color: auto) {
+  .guide-table-wrap::-webkit-scrollbar {
+    height: 6px;
+  }
+  .guide-table-wrap::-webkit-scrollbar-thumb {
+    background: var(--border-active);
+    border-radius: 4px;
+  }
 }
 
 .guide-table {
