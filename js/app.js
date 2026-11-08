@@ -17,11 +17,16 @@ import {
   showToast
 } from './ui.js';
 
-// Stan aplikacji
+// Stan aplikacji z zaawansowanymi filtrami
 const state = {
   sourceMode: 'catalog', // 'catalog' (baza gier z repozytorium) lub 'archive' (Internet Archive)
   query: '',
   platformId: 'snes', // Domyślnie SNES w katalogu
+  genre: 'all',
+  minRating: 0,
+  yearPeriod: 'all',
+  publisher: 'all',
+  sortBy: 'rating-desc',
   trustedOnly: false,
   page: 1,
   rows: 30,
@@ -44,6 +49,19 @@ const elements = {
   searchClearBtn: document.getElementById('search-clear-btn'),
   externalSearchPills: document.getElementById('external-search-pills'),
   platformList: document.getElementById('platform-list'),
+
+  // Panel zaawansowanych filtrów
+  btnToggleFilters: document.getElementById('btn-toggle-filters'),
+  filterActiveBadge: document.getElementById('filter-active-badge'),
+  filterChevron: document.getElementById('filter-chevron'),
+  filtersDrawer: document.getElementById('filters-drawer'),
+  filterSort: document.getElementById('filter-sort'),
+  filterGenre: document.getElementById('filter-genre'),
+  filterRating: document.getElementById('filter-rating'),
+  filterYear: document.getElementById('filter-year'),
+  filterPublisher: document.getElementById('filter-publisher'),
+  btnResetFilters: document.getElementById('btn-reset-filters'),
+
   trustedToggleWrap: document.getElementById('trusted-toggle-wrap'),
   trustedToggle: document.getElementById('toggle-trusted'),
   resultsStats: document.getElementById('results-stats'),
@@ -80,13 +98,34 @@ function registerServiceWorker() {
 }
 
 /**
- * Synchronizacja stanu z parametrami URL (?q=...&platform=...&mode=...)
+ * Oblicza liczbę aktywnych filtrów szczegółowych i aktualizuje plakietkę
+ */
+function updateActiveFiltersBadge() {
+  let count = 0;
+  if (state.genre !== 'all') count++;
+  if (state.minRating > 0) count++;
+  if (state.yearPeriod !== 'all') count++;
+  if (state.publisher !== 'all') count++;
+
+  if (elements.filterActiveBadge) {
+    elements.filterActiveBadge.textContent = String(count);
+    elements.filterActiveBadge.style.display = count > 0 ? 'inline-block' : 'none';
+  }
+}
+
+/**
+ * Synchronizacja stanu z parametrami URL
  */
 function syncStateFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
   const mode = urlParams.get('mode');
   const q = urlParams.get('q');
   const platform = urlParams.get('platform');
+  const genre = urlParams.get('genre');
+  const rating = parseFloat(urlParams.get('rating') || '0');
+  const year = urlParams.get('year');
+  const pub = urlParams.get('pub');
+  const sort = urlParams.get('sort');
   const page = parseInt(urlParams.get('page') || '1', 10);
   const trusted = urlParams.get('trusted') === '1';
 
@@ -100,6 +139,26 @@ function syncStateFromUrl() {
   if (platform && PLATFORMS.some(p => p.id === platform)) {
     state.platformId = platform;
   }
+  if (genre) {
+    state.genre = genre;
+    if (elements.filterGenre) elements.filterGenre.value = genre;
+  }
+  if (!isNaN(rating) && rating > 0) {
+    state.minRating = rating;
+    if (elements.filterRating) elements.filterRating.value = String(rating);
+  }
+  if (year) {
+    state.yearPeriod = year;
+    if (elements.filterYear) elements.filterYear.value = year;
+  }
+  if (pub) {
+    state.publisher = pub;
+    if (elements.filterPublisher) elements.filterPublisher.value = pub;
+  }
+  if (sort) {
+    state.sortBy = sort;
+    if (elements.filterSort) elements.filterSort.value = sort;
+  }
   if (!isNaN(page) && page > 0) {
     state.page = page;
   }
@@ -107,8 +166,10 @@ function syncStateFromUrl() {
   if (elements.trustedToggle) {
     elements.trustedToggle.checked = trusted;
   }
+
   updateClearButtonVisibility();
   updateModeButtonsUI();
+  updateActiveFiltersBadge();
 }
 
 /**
@@ -122,7 +183,6 @@ function updateModeButtonsUI() {
   elements.btnModeArchive?.classList.toggle('active', !isCatalog);
   elements.btnModeArchive?.setAttribute('aria-selected', String(!isCatalog));
 
-  // Pokaż filtr zaufanych kolekcji tylko w trybie Archive
   if (elements.trustedToggleWrap) {
     elements.trustedToggleWrap.style.display = isCatalog ? 'none' : 'inline-flex';
   }
@@ -136,6 +196,11 @@ function updateUrlParams() {
   if (state.sourceMode !== 'catalog') params.set('mode', state.sourceMode);
   if (state.query) params.set('q', state.query);
   if (state.platformId && state.platformId !== 'all') params.set('platform', state.platformId);
+  if (state.genre !== 'all') params.set('genre', state.genre);
+  if (state.minRating > 0) params.set('rating', String(state.minRating));
+  if (state.yearPeriod !== 'all') params.set('year', state.yearPeriod);
+  if (state.publisher !== 'all') params.set('pub', state.publisher);
+  if (state.sortBy !== 'rating-desc') params.set('sort', state.sortBy);
   if (state.page > 1) params.set('page', String(state.page));
   if (state.trustedOnly && state.sourceMode === 'archive') params.set('trusted', '1');
 
@@ -170,7 +235,7 @@ function updateExternalLinksUI() {
 }
 
 /**
- * Wykonanie zapytania wyszukiwania (w trybie katalogu lub archive.org)
+ * Wykonanie zapytania wyszukiwania (w trybie katalogu lub archive.org) z uwzględnieniem filtrów
  */
 async function performSearch() {
   if (currentAbortController) {
@@ -180,6 +245,7 @@ async function performSearch() {
 
   state.isLoading = true;
   updateUrlParams();
+  updateActiveFiltersBadge();
 
   // Renderuj szkielety ładowania
   renderSkeletons(elements.gamesGrid, 12);
@@ -198,6 +264,11 @@ async function performSearch() {
       result = await searchCatalog({
         query: state.query,
         platformId: state.platformId,
+        genre: state.genre,
+        minRating: state.minRating,
+        yearPeriod: state.yearPeriod,
+        publisher: state.publisher,
+        sortBy: state.sortBy,
         page: state.page,
         rows: state.rows,
         signal: currentAbortController.signal
@@ -206,6 +277,9 @@ async function performSearch() {
       result = await searchGames({
         query: state.query,
         platformId: state.platformId,
+        genre: state.genre,
+        minRating: state.minRating,
+        sortBy: state.sortBy,
         trustedOnly: state.trustedOnly,
         page: state.page,
         rows: state.rows,
@@ -219,7 +293,9 @@ async function performSearch() {
 
     if (elements.resultsStats) {
       const modeLabel = state.sourceMode === 'catalog' ? '📚 Baza gier' : '🌐 Internet Archive';
-      elements.resultsStats.innerHTML = `${modeLabel} • Znaleziono: <strong>${result.total.toLocaleString()}</strong> gier w <strong>${getActivePlatformName()}</strong>`;
+      const filterAddon = (state.genre !== 'all' ? ` • ${state.genre}` : '') + 
+                          (state.minRating > 0 ? ` • ★${state.minRating}+` : '');
+      elements.resultsStats.innerHTML = `${modeLabel} • Znaleziono: <strong>${result.total.toLocaleString()}</strong> gier w <strong>${getActivePlatformName()}</strong>${filterAddon}`;
     }
 
     if (result.games.length === 0) {
@@ -261,10 +337,8 @@ async function handleGameSelected(game) {
     let filesData;
 
     if (game.isCatalog) {
-      // Dla gry z katalogu wyszukaj odpowiadający plik ROM w Internet Archive
       filesData = await findRomForCatalogGame(game);
     } else {
-      // Dla pozycji z Internet Archive pobierz pliki bezpośrednio z archiwum
       filesData = await fetchGameFiles(game.identifier);
     }
 
@@ -312,6 +386,68 @@ function bindEvents() {
     }
   });
 
+  // Rozwijanie / zwijanie szuflady zaawansowanych filtrów
+  elements.btnToggleFilters?.addEventListener('click', () => {
+    if (!elements.filtersDrawer) return;
+    const isHidden = elements.filtersDrawer.style.display === 'none';
+    elements.filtersDrawer.style.display = isHidden ? 'flex' : 'none';
+    elements.btnToggleFilters?.setAttribute('aria-expanded', String(isHidden));
+    elements.filterChevron?.classList.toggle('open', isHidden);
+  });
+
+  // Obsługa zmiany sortowania
+  elements.filterSort?.addEventListener('change', (e) => {
+    state.sortBy = e.target.value;
+    state.page = 1;
+    performSearch();
+  });
+
+  // Obsługa zmiany gatunku
+  elements.filterGenre?.addEventListener('change', (e) => {
+    state.genre = e.target.value;
+    state.page = 1;
+    performSearch();
+  });
+
+  // Obsługa zmiany minimalnej oceny
+  elements.filterRating?.addEventListener('change', (e) => {
+    state.minRating = parseFloat(e.target.value) || 0;
+    state.page = 1;
+    performSearch();
+  });
+
+  // Obsługa zmiany ery / rocznika
+  elements.filterYear?.addEventListener('change', (e) => {
+    state.yearPeriod = e.target.value;
+    state.page = 1;
+    performSearch();
+  });
+
+  // Obsługa zmiany wydawcy
+  elements.filterPublisher?.addEventListener('change', (e) => {
+    state.publisher = e.target.value;
+    state.page = 1;
+    performSearch();
+  });
+
+  // Resetowanie filtrów
+  elements.btnResetFilters?.addEventListener('click', () => {
+    state.genre = 'all';
+    state.minRating = 0;
+    state.yearPeriod = 'all';
+    state.publisher = 'all';
+    state.sortBy = 'rating-desc';
+    state.page = 1;
+
+    if (elements.filterGenre) elements.filterGenre.value = 'all';
+    if (elements.filterRating) elements.filterRating.value = '0';
+    if (elements.filterYear) elements.filterYear.value = 'all';
+    if (elements.filterPublisher) elements.filterPublisher.value = 'all';
+    if (elements.filterSort) elements.filterSort.value = 'rating-desc';
+
+    performSearch();
+  });
+
   // Zmiana tekstu wyszukiwania
   if (elements.searchInput) {
     elements.searchInput.addEventListener('input', (e) => {
@@ -321,7 +457,6 @@ function bindEvents() {
       updateExternalLinksUI();
 
       clearTimeout(searchDebounceTimer);
-      // W trybie katalogu szybszy debounce (200ms)
       const debounceTime = state.sourceMode === 'catalog' ? 200 : 350;
       searchDebounceTimer = setTimeout(() => {
         performSearch();

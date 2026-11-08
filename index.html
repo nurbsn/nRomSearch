@@ -87,6 +87,101 @@
         </div>
       </div>
 
+      <!-- Panel zaawansowanych filtrów i sortowania -->
+      <div class="advanced-filter-panel" id="advanced-filter-panel">
+        <div class="filter-toolbar">
+          <button type="button" class="btn-toggle-filters" id="btn-toggle-filters" aria-expanded="false" title="Rozwiń filtry gatunku, oceny, ery i wydawcy">
+            <span class="filter-toggle-icon">⚙️</span>
+            <span>Zaawansowane filtry</span>
+            <span class="filter-active-badge" id="filter-active-badge" style="display: none;">0</span>
+            <span class="filter-chevron" id="filter-chevron">▼</span>
+          </button>
+
+          <div class="sort-toolbar-group">
+            <label for="filter-sort" class="sort-label">↕️ Sortuj:</label>
+            <select id="filter-sort" class="select-styled" aria-label="Wybierz sortowanie wyników">
+              <option value="rating-desc">⭐ Najwyżej oceniane</option>
+              <option value="popular">🔥 Najpopularniejsze</option>
+              <option value="title-asc">🔤 Tytuł (A–Z)</option>
+              <option value="title-desc">🔤 Tytuł (Z–A)</option>
+              <option value="year-desc">📅 Rok (Od najnowszych)</option>
+              <option value="year-asc">📅 Rok (Od najstarszych)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Rozwijany kontener z filtrami szczegółowymi -->
+        <div class="filters-drawer" id="filters-drawer" style="display: none;">
+          <div class="filters-grid">
+            <!-- Gatunek -->
+            <div class="filter-field">
+              <label for="filter-genre" class="filter-field-label">🏷️ Gatunek:</label>
+              <select id="filter-genre" class="select-styled">
+                <option value="all">Wszystkie gatunki</option>
+                <option value="Platformówka">🏃 Platformówka</option>
+                <option value="RPG">⚔️ RPG / JRPG</option>
+                <option value="Bijatyka">🥊 Bijatyka</option>
+                <option value="Wyścigi">🏎️ Wyścigi</option>
+                <option value="Sportowe">⚽ Sportowe</option>
+                <option value="Strzelanka">💥 Strzelanka / FPS</option>
+                <option value="Survival Horror">👻 Survival Horror</option>
+                <option value="Logiczna">🧩 Logiczna / Puzzle</option>
+                <option value="Strategia">🏰 Strategia / Taktyka</option>
+                <option value="Symulacja">✈️ Symulacja</option>
+                <option value="Akcja / Przygoda">🗺️ Akcja / Przygoda</option>
+              </select>
+            </div>
+
+            <!-- Ocena -->
+            <div class="filter-field">
+              <label for="filter-rating" class="filter-field-label">⭐ Minimalna ocena:</label>
+              <select id="filter-rating" class="select-styled">
+                <option value="0">Wszystkie oceny</option>
+                <option value="4.8">★★★★★ 4.8+ (Arcydzieła)</option>
+                <option value="4.5">★★★★☆ 4.5+ (Wybitne)</option>
+                <option value="4.0">★★★★☆ 4.0+ (Bardzo dobre)</option>
+                <option value="3.5">★★★☆☆ 3.5+ (Dobre)</option>
+              </select>
+            </div>
+
+            <!-- Era / Rok -->
+            <div class="filter-field">
+              <label for="filter-year" class="filter-field-label">📅 Era wydania:</label>
+              <select id="filter-year" class="select-styled">
+                <option value="all">Wszystkie roczniki</option>
+                <option value="80s">1980–1989 (Klasyka 8-bit)</option>
+                <option value="early90s">1990–1994 (Złota era 16-bit)</option>
+                <option value="late90s">1995–1999 (Era 32/64-bit)</option>
+                <option value="2000s">2000+ (Era PS2 / GBA / DC)</option>
+              </select>
+            </div>
+
+            <!-- Wydawca -->
+            <div class="filter-field">
+              <label for="filter-publisher" class="filter-field-label">🏢 Wydawca:</label>
+              <select id="filter-publisher" class="select-styled">
+                <option value="all">Wszyscy wydawcy</option>
+                <option value="Nintendo">Nintendo</option>
+                <option value="Sega">Sega</option>
+                <option value="Capcom">Capcom</option>
+                <option value="Konami">Konami</option>
+                <option value="Square">Square / Enix</option>
+                <option value="Namco">Namco / Bandai</option>
+                <option value="Sony">Sony PlayStation</option>
+                <option value="Electronic Arts">Electronic Arts (EA)</option>
+                <option value="Atari">Atari / Midway</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="filters-footer">
+            <button type="button" class="btn-reset-filters" id="btn-reset-filters">
+              🔄 Resetuj filtry
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Pasek opcji i statystyk -->
       <div class="controls-bar">
         <label class="filter-toggle-label" id="trusted-toggle-wrap">

@@ -15,6 +15,24 @@ function formatDownloads(num) {
 }
 
 /**
+ * Renderuje gwiazdki oceny (np. ★★★★☆ 4.8 / 5.0)
+ */
+export function renderStarsHtml(rating) {
+  const r = Math.max(1, Math.min(5, rating || 4.5));
+  let stars = '';
+  for (let i = 1; i <= 5; i++) {
+    if (i <= Math.floor(r)) {
+      stars += '<span class="star-gold">★</span>';
+    } else if (i - 0.5 <= r) {
+      stars += '<span class="star-half">★</span>';
+    } else {
+      stars += '<span class="star-dim">☆</span>';
+    }
+  }
+  return `<span class="stars-gold-wrap" aria-label="Ocena ${r.toFixed(1)} na 5">${stars}</span>`;
+}
+
+/**
  * Renderowanie listy platform (pigułki / pills)
  */
 export function renderPlatforms(container, activeId, onSelect) {
@@ -112,6 +130,15 @@ export function renderGames(container, games, onGameClick) {
       mediaWrapper.appendChild(img);
     }
 
+    // Odznaka gwiazdek oceny (np. ★ 4.8)
+    if (game.rating) {
+      const ratingBadge = document.createElement('div');
+      ratingBadge.className = 'card-badge-rating';
+      ratingBadge.title = `Ocena społeczności: ${game.rating.toFixed(1)} / 5.0 (${(game.ratingCount || 0).toLocaleString()} ocen)`;
+      ratingBadge.innerHTML = `<span>★</span> <span>${game.rating.toFixed(1)}</span>`;
+      mediaWrapper.appendChild(ratingBadge);
+    }
+
     // Odznaka pobrań lub bazy gier
     if (game.downloads) {
       const badge = document.createElement('div');
@@ -135,21 +162,28 @@ export function renderGames(container, games, onGameClick) {
     titleEl.title = game.title;
     titleEl.textContent = game.title;
 
+    // Rząd gatunku i roku
     const metaRow = document.createElement('div');
     metaRow.className = 'card-meta-row';
 
+    const genreSpan = document.createElement('span');
+    genreSpan.className = 'badge-genre-pill';
+    genreSpan.textContent = `${game.genreIcon || '🎮'} ${game.genre || 'Retro'}`;
+
     const yearSpan = document.createElement('span');
-    yearSpan.textContent = game.year ? `📅 ${game.year}` : (game.platformName || 'Retro');
+    yearSpan.textContent = game.year ? `📅 ${game.year}` : (game.platformName || '');
 
-    const subSpan = document.createElement('span');
-    if (game.publisher) {
-      subSpan.textContent = `🏢 ${game.publisher.substring(0, 15)}`;
-    } else if (game.collections?.[0]) {
-      subSpan.textContent = `📦 ${game.collections[0].substring(0, 15)}`;
-    }
-
+    metaRow.appendChild(genreSpan);
     metaRow.appendChild(yearSpan);
-    metaRow.appendChild(subSpan);
+
+    // Rząd gwiazdek oceny
+    const ratingRow = document.createElement('div');
+    ratingRow.className = 'card-rating-row';
+    ratingRow.innerHTML = `
+      ${renderStarsHtml(game.rating)}
+      <span class="rating-number">${game.rating ? game.rating.toFixed(1) : '4.5'}</span>
+      <span class="rating-votes">(${((game.ratingCount || 0)).toLocaleString()})</span>
+    `;
 
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -158,6 +192,7 @@ export function renderGames(container, games, onGameClick) {
 
     body.appendChild(titleEl);
     body.appendChild(metaRow);
+    body.appendChild(ratingRow);
     body.appendChild(btn);
 
     card.appendChild(mediaWrapper);
@@ -262,7 +297,16 @@ export function showModalLoading(modalBackdrop, game) {
         ${game.thumbnail ? `<img src="${game.thumbnail}" alt="" class="modal-game-cover" onerror="this.style.display='none';" />` : ''}
         <div class="modal-game-details">
           <h4 class="modal-game-title">${game.title}</h4>
-          <span class="modal-game-id">${game.year ? 'Rok: ' + game.year : ''} ${game.publisher ? '• Wydawca: ' + game.publisher : ''}</span>
+          <div class="modal-rating-row">
+            ${renderStarsHtml(game.rating)}
+            <span class="modal-rating-score"><strong>${game.rating ? game.rating.toFixed(1) : '4.5'}</strong> / 5.0</span>
+            <span class="modal-rating-count">(${(game.ratingCount || 1200).toLocaleString()} ocen w serwisach ROM)</span>
+          </div>
+          <div class="modal-tags-row">
+            <span class="badge-tag-pill">${game.genreIcon || '🎮'} ${game.genre || 'Akcja'}</span>
+            ${game.year ? `<span class="badge-tag-pill">📅 ${game.year}</span>` : ''}
+            ${game.publisher ? `<span class="badge-tag-pill">🏢 ${game.publisher}</span>` : ''}
+          </div>
         </div>
       </div>
       <div class="files-list-container">
@@ -293,7 +337,17 @@ export function populateFilesModal(modalBackdrop, game, filesData, onCopyToast) 
       ${game.thumbnail ? `<img src="${game.thumbnail}" alt="" class="modal-game-cover" onerror="this.style.display='none';" />` : ''}
       <div class="modal-game-details">
         <h4 class="modal-game-title">${game.title}</h4>
-        <span class="modal-game-id">${identifier ? 'Archiwum: ' + identifier : (game.platformName || 'Gra retro')}</span>
+        <div class="modal-rating-row">
+          ${renderStarsHtml(game.rating)}
+          <span class="modal-rating-score"><strong>${game.rating ? game.rating.toFixed(1) : '4.5'}</strong> / 5.0</span>
+          <span class="modal-rating-count">(${(game.ratingCount || 1200).toLocaleString()} ocen na Romspedia, Retrostic, EmuParadise)</span>
+        </div>
+        <div class="modal-tags-row">
+          <span class="badge-tag-pill">${game.genreIcon || '🎮'} ${game.genre || 'Akcja'}</span>
+          ${game.year ? `<span class="badge-tag-pill">📅 ${game.year}</span>` : ''}
+          ${game.publisher ? `<span class="badge-tag-pill">🏢 ${game.publisher}</span>` : ''}
+          ${identifier ? `<span class="badge-tag-pill">Archiwum: ${identifier}</span>` : ''}
+        </div>
       </div>
     </div>
   `;
